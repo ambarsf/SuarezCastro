@@ -6,6 +6,7 @@
 #include <cstring>
 #include <cmath>
 #include <sstream>
+#include <vector>
 
 using namespace std;
 
@@ -15,7 +16,7 @@ const char* toString(int*);
 int* final(int*);
 
 //struct for clients 
-struct Client{
+struct Clients{
 	int ID;
 	char name[40];
 	char gender;
@@ -42,6 +43,8 @@ struct Calls{
 };
 
 int main(int argc, char* argv[]){
+	vector<Clients> clients;
+	vector<Cities> cities;
 
 	//leer los id
 	char** ClientId = new char* [500];
@@ -57,6 +60,7 @@ int main(int argc, char* argv[]){
 	}else{
 		cout<<"ERROR"<<endl;
 	}
+
 	// Read Clients
 	char** ClientName= new char* [500];
 	char client[40];
@@ -120,6 +124,46 @@ int main(int argc, char* argv[]){
 	}else{
 		cout<<"Unable to open file"<<endl;
 	}
+
+	//fill the clients vector
+	for (int i = 0; i < 500; i++)
+	{
+		Clients client;
+		char id [14];
+		strcpy(id,ClientId[i]);
+		string Id="";
+		for (int j = 0; j < strlen(id); j++)
+		{
+			Id+=id[j];
+		}
+		client.ID=atoi(Id.c_str());
+		strcpy(client.name,ClientName[i]);
+		client.gender=Gender();
+		clients.push_back(client);
+	}
+
+	//fill the Cities vector
+	for (int i = 0; i < 30; i++)
+	{
+		Cities city;
+		char id [3];
+		strcpy(id,CitiesID[i]);
+		string Id="";
+		for (int j = 0; j < strlen(id); j++)
+		{
+			Id+=id[j];
+		}
+		city.IDCity=atoi(Id.c_str());
+		strcpy(city.CityName,CityName[i]);
+		cities.push_back(city);
+
+	}
+
+	for (int i = 0; i < clients.size(); ++i)
+	{
+		Clients client=clients[i];
+		cout<< client.ID<<endl;
+	}
 	return 0;
 }
 
@@ -132,7 +176,7 @@ char Gender(){
 		gender='M';
 	}
 	return gender;
-};
+}
 
 int* inicio(){
 	int* inicio = new int[7];
