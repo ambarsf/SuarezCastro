@@ -1,0 +1,59 @@
+#include <cmath>
+#include <cstdlib>
+#include <ctime>
+#include <iostream>
+#include <string>
+#include <cstdio>
+#include <cstddef>
+#include <sstream>
+
+using namespace::std;
+
+int* final(int*);
+const char* toString(int*);
+
+int main(int argc, char const *argv[]){
+	srand(time(0));
+	int inicio[7];
+	inicio[0] = 2015;
+	inicio[1] = rand() % 12 + 1;
+	inicio[2] = rand() % 31 + 1;
+	inicio[3] = rand() % 24 + 1;
+	inicio[4] = rand() % 59 + 1;
+	inicio[5] = rand() % 59 + 1;
+	int* fin = final(inicio);
+	for (int i = 0; i < 6; i++){
+		cout<<i<<"    "<<fin[i]<<endl;
+	}
+	int begin = atoi(toString(inicio));
+	int end = atoi(toString(fin));
+	cout<<toString(inicio)<<endl<<toString(fin)<<endl;
+	cout<<begin<<endl<<end;
+	delete fin;
+	return 0;
+}
+
+int* final(int* inicio){
+	int* fin = new int[7];
+	fin[0] = 2015;
+	fin[1] = inicio[1];
+	fin[2] = inicio[2];
+	while(fin[3] < inicio[3]){
+		fin[3] = rand() % 24 + 1; 
+	}
+	fin[4] = rand() % 59 + 1;
+	fin[5] = rand() % 59 + 1; 
+	return fin;
+}
+
+const char* toString(int * ints){
+	stringstream ss;
+	for (int i = 0; i < 6; i++){
+		if(10 - ints[i] > 0){
+			ss<<"0"<<ints[i];
+		}else{
+			ss<<ints[i];	
+		}
+	}
+	return ss.str().c_str();
+}
