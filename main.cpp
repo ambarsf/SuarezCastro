@@ -45,7 +45,7 @@ int main(int argc, char* argv[]){
 
 	//leer los id
 	char** ClientId = new char* [500];
-	char* tempid[14];
+	char tempid[14];
 	ifstream fileId ("Id.txt");
 	if (fileId.is_open()){
 		for (int i = 0; i < 500; i++){
@@ -135,7 +135,7 @@ char Gender(){
 };
 
 int* inicio(){
-	int inicio[7];
+	int* inicio = new int[7];
 	inicio[0] = 2015;
 	inicio[1] = rand() % 12 + 1;
 	inicio[2] = rand() % 31 + 1;
