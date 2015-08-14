@@ -45,6 +45,7 @@ struct Calls{
 int main(int argc, char* argv[]){
 	vector<Clients> clients;
 	vector<Cities> cities;
+	vector<Lines> lines;
 
 	//leer los id
 	char** ClientId = new char* [500];
@@ -156,13 +157,29 @@ int main(int argc, char* argv[]){
 		city.IDCity=atoi(Id.c_str());
 		strcpy(city.CityName,CityName[i]);
 		cities.push_back(city);
-
 	}
 
-	for (int i = 0; i < clients.size(); ++i)
+	//fill the Lines vector
+	for (int i = 0; i < 500; i++)
 	{
 		Clients client=clients[i];
-		cout<< client.ID<<endl;
+		Lines line;
+		char number[8];
+		strcpy(number,PhoneNumbers[i]);
+		string num="";
+		for (int j = 0; j < strlen(number); j++)
+		{
+			num+=number[j];
+		}
+		line.number=atoi(num.c_str());
+		line.ID=client.ID;
+		lines.push_back(line);
+	}
+
+	for (int i = 0; i < clients.size(); i++)
+	{
+		Clients client=clients[i];
+		cout<<client.ID<<endl;
 	}
 	return 0;
 }
