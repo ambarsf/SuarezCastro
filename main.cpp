@@ -15,6 +15,7 @@ int* inicio();
 const char* toString(int*);
 int* final(int*);
 
+
 //struct for clients 
 struct Clients{
 	int ID;
@@ -37,16 +38,19 @@ struct Cities{
 //struct for calls
 struct Calls{
 	int from; // numero de quien hace la llamada
-	int start; // muy feo estar escribiendo beginning
-	int end;
+	int* start; // muy feo estar escribiendo beginning
+	int* end;
 	int to;// numero a quien se esta llamando 
 };
 
+Calls llamadas(vector<Lines>);
+
 int main(int argc, char* argv[]){
+	vector<Calls> calls;
 	vector<Clients> clients;
 	vector<Cities> cities;
 	vector<Lines> lines;
-
+	srand(time(0));
 	//leer los id
 	char** ClientId = new char* [500];
 	char tempid[14];
@@ -61,6 +65,9 @@ int main(int argc, char* argv[]){
 	}else{
 		cout<<"ERROR"<<endl;
 	}
+	/*for (int i = 0; i < 500; ++i){
+		cout<<ClientId[i]<<endl;
+	}*/
 
 	// Read Clients
 	char** ClientName= new char* [500];
@@ -176,10 +183,14 @@ int main(int argc, char* argv[]){
 		lines.push_back(line);
 	}
 
-	for (int i = 0; i < clients.size(); i++)
+	/*for (int i = 0; i < clients.size(); i++)
 	{
 		Clients client=clients[i];
 		cout<<client.ID<<endl;
+	}*/
+	for (int i = 0; i < 20; i++){
+		calls.push_back(llamadas(lines));
+		cout<<calls.at(i).from<<"   "<<calls.at(i).to<<"   "<<toString(calls.at(i).start)<<"   "<<toString(calls.at(i).end)<<endl;	
 	}
 	return 0;
 }
@@ -230,3 +241,25 @@ const char* toString(int * ints){
 	}
 	return ss.str().c_str();
 }
+
+Calls llamadas(vector<Lines> lineas){
+	Calls call;
+	int size = lineas.size() - 1;
+	int pos = rand() % size + 0;
+	call.from = lineas.at(pos).number;
+	//cout<<"FROM    "<<call.from<<"    POS    "<<pos<<endl;
+	call.start = inicio();
+	call.end = final(call.start);
+	int pos2 = rand() % size + 0;
+	while(lineas.at(pos).ID == lineas.at(pos2).ID){
+		pos2 = rand() % size + 0;	
+	}
+	call.to = lineas.at(pos2).number;
+	//cout<<"TO    "<<call.to<<"    POS2    "<<pos2<<endl;
+	return call;
+}
+
+/*void Ordenar(){
+
+}*/
+
