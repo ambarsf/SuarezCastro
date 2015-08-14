@@ -4,10 +4,12 @@
 #include <ctime>
 #include <cctype>
 #include <cstring>
+#include <cmath>
 
 using namespace std;
-char Gender();
 
+char Gender();
+int* inicio();
 //struct for clients 
 struct Client{
 	int ID;
@@ -37,8 +39,22 @@ struct Calls{
 
 int main(int argc, char* argv[]){
 
+	//leer los id
+	char** ClientId = new char* [500];
+	char* tempid[14];
+	ifstream fileId ("Id.txt");
+	if (fileId.is_open()){
+		for (int i = 0; i < 500; i++){
+			fileId.getline(tempid,sizeof(tempid));
+			ClientId[i] = new char[strlen(tempid) + 1];
+			strcpy(ClientId[i],tempid);
+		}
+		fileId.close();
+	}else{
+		cout<<"ERROR"<<endl;
+	}
 	// Read Clients
-	char** ClientName=new char* [500];
+	char** ClientName= new char* [500];
 	char client[40];
 	ifstream namefile ("RandomNames.txt");
 	if (namefile.is_open()){
@@ -100,6 +116,7 @@ int main(int argc, char* argv[]){
 	}else{
 		cout<<"Unable to open file"<<endl;
 	}
+	return 0;
 }
 
 char Gender(){
@@ -112,3 +129,27 @@ char Gender(){
 	}
 	return gender;
 };
+
+int* inicio(){
+	int inicio[7];
+	inicio[0] = 2015;
+	inicio[1] = rand() % 12 + 1;
+	inicio[2] = rand() % 31 + 1;
+	inicio[3] = rand() % 24 + 1;
+	inicio[4] = rand() % 59 + 1;
+	inicio[5] = rand() % 59 + 1;
+	return inicio;
+}
+
+int* final(int* inicio){
+	int* fin = new int[7];
+	fin[0] = 2015;
+	fin[1] = inicio[1];
+	fin[2] = inicio[2];
+	while(fin[3] < inicio[3]){
+		fin[3] = rand() % 24 + 1; 
+	}
+	fin[4] = rand() % 59 + 1;
+	fin[5] = rand() % 59 + 1; 
+	return fin;
+}
