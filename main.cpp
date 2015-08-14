@@ -1,5 +1,9 @@
 #include <iostream>
+#include <cstdlib>
+#include <ctime>
+
 using namespace std;
+char Gender();
 
 //struct for clients 
 struct Client{
@@ -31,3 +35,14 @@ struct Calls{
 int main(int argc, char* argv[]){
 	return 0;
 }
+
+char Gender(){
+	int num=(rand()%2);
+	char gender;
+	if (num==0){
+		gender='F';
+	}else{
+		gender='M';
+	}
+	return gender;
+};
