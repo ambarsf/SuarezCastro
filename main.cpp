@@ -5,11 +5,15 @@
 #include <cctype>
 #include <cstring>
 #include <cmath>
+#include <sstream>
 
 using namespace std;
 
 char Gender();
 int* inicio();
+const char* toString(int*);
+int* final(int*);
+
 //struct for clients 
 struct Client{
 	int ID;
@@ -152,4 +156,16 @@ int* final(int* inicio){
 	fin[4] = rand() % 59 + 1;
 	fin[5] = rand() % 59 + 1; 
 	return fin;
+}
+
+const char* toString(int * ints){
+	stringstream ss;
+	for (int i = 0; i < 6; i++){
+		if(10 - ints[i] > 0){
+			ss<<"0"<<ints[i];
+		}else{
+			ss<<ints[i];	
+		}
+	}
+	return ss.str().c_str();
 }
