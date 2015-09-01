@@ -14,7 +14,7 @@ char Gender();
 int* inicio();
 const char* toString(int*);
 int* final(int*);
-
+int mayor(int,int);
 
 //struct for clients 
 struct Clients{
@@ -120,7 +120,7 @@ int main(int argc, char* argv[]){
 	// Read Cities ID
 	char** CitiesID=new char*[30];
 	char cityID[3];
-	ifstream CityIDfile("CitiesID.txt");
+	ifstream CityIDfile("CityID.txt");
 	if (CityIDfile.is_open()){
 		for (int i = 0; i < 30; i++)
 		{
@@ -166,7 +166,6 @@ int main(int argc, char* argv[]){
 		cities.push_back(city);
 	}
 
-	//fill the Lines vector
 	for (int i = 0; i < 500; i++)
 	{
 		Clients client=clients[i];
@@ -190,7 +189,7 @@ int main(int argc, char* argv[]){
 	}*/
 	for (int i = 0; i < 20; i++){
 		calls.push_back(llamadas(lines));
-		cout<<calls.at(i).from<<"   "<<calls.at(i).to<<"   "<<toString(calls.at(i).start)<<"   "<<toString(calls.at(i).end)<<endl;	
+		cout<<"I--->"<<i<<"  "<<calls.at(i).from<<"   "<<calls.at(i).to<<"   "<<toString(calls.at(i).start)<<"   "<<toString(calls.at(i).end)<<endl;	
 	}
 	return 0;
 }
@@ -222,12 +221,31 @@ int* final(int* inicio){
 	fin[0] = 2015;
 	fin[1] = inicio[1];
 	fin[2] = inicio[2];
-	while(fin[3] < inicio[3]){
-		fin[3] = rand() % 24 + 1; 
+	fin[3] = mayor(inicio[3],24);
+	if(fin[3] == inicio[3]){
+		fin[4] = mayor(inicio[4],59);
+		fin[5] = mayor(inicio[5],59);
+	}else{ 
+		fin[4] = rand() % 59 + 1;
+		fin[5] = rand() % 59 + 1;
 	}
-	fin[4] = rand() % 59 + 1;
-	fin[5] = rand() % 59 + 1; 
+	/*cout<<toString(inicio)<<endl;
+	cout<<"fin[0] "<<fin[0]<<endl;
+	cout<<"fin[1] "<<fin[1]<<endl;
+	cout<<"fin[2] "<<fin[2]<<endl;
+	cout<<"fin[3] "<<fin[3]<<endl;
+	cout<<"fin[4] "<<fin[4]<<endl;
+	cout<<"fin[5] "<<fin[5]<<endl;*/ 
 	return fin;
+}
+
+int mayor(int num, int limit){
+	int retval = rand() % limit + num;
+	while(retval > limit){
+		retval = rand() % limit + num;
+		//cout<<endl<<"LIMIT"<<limit<<"MAYOR"<<retval<<endl;
+	}
+	return retval;
 }
 
 const char* toString(int * ints){
@@ -249,7 +267,9 @@ Calls llamadas(vector<Lines> lineas){
 	call.from = lineas.at(pos).number;
 	//cout<<"FROM    "<<call.from<<"    POS    "<<pos<<endl;
 	call.start = inicio();
+	cout<<"START-->"<<toString(call.start)<<endl;
 	call.end = final(call.start);
+	cout<<"END---->"<<toString(call.end)<<endl;
 	int pos2 = rand() % size + 0;
 	while(lineas.at(pos).ID == lineas.at(pos2).ID){
 		pos2 = rand() % size + 0;	
