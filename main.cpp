@@ -19,20 +19,20 @@ int mayor(int,int);
 
 //struct for clients 
 struct Clients{
-	int ID;
+	char ID[13];
 	char name[40];
 	char gender;
 };
 
 //struct for lines per client
 struct Lines{
-	int number;
-	int ID;
+	char number[8];
+	char ID[13];
 };
 
 //struct for cities
 struct Cities{
-	int IDCity;
+	char IDCity[3];
 	char CityName [40];
 };
 
@@ -140,14 +140,7 @@ int main(int argc, char* argv[]){
 	for (int i = 0; i < 500; i++)
 	{
 		Clients client;
-		char id [14];
-		strcpy(id,ClientId[i]);
-		string Id="";
-		for (int j = 0; j < strlen(id); j++)
-		{
-			Id+=id[j];
-		}
-		client.ID=atoi(Id.c_str());
+		strcpy(client.ID,ClientId[i]);
 		strcpy(client.name,ClientName[i]);
 		client.gender=Gender();
 		clients.push_back(client);
@@ -157,14 +150,7 @@ int main(int argc, char* argv[]){
 	for (int i = 0; i < 30; i++)
 	{
 		Cities city;
-		char id [3];
-		strcpy(id,CitiesID[i]);
-		string Id="";
-		for (int j = 0; j < strlen(id); j++)
-		{
-			Id+=id[j];
-		}
-		city.IDCity=atoi(Id.c_str());
+		strcpy(city.IDCity,CitiesID[i]);
 		strcpy(city.CityName,CityName[i]);
 		cities.push_back(city);
 	}
@@ -173,15 +159,8 @@ int main(int argc, char* argv[]){
 	{
 		Clients client=clients[i];
 		Lines line;
-		char number[8];
-		strcpy(number,PhoneNumbers[i]);
-		string num="";
-		for (int j = 0; j < strlen(number); j++)
-		{
-			num+=number[j];
-		}
-		line.number=atoi(num.c_str());
-		line.ID=client.ID;
+		strcpy(line.number,PhoneNumbers[i]);
+		strcpy(line.ID,client.ID);
 		lines.push_back(line);
 	}
 
