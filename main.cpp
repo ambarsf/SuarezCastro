@@ -7,6 +7,7 @@
 #include <cmath>
 #include <sstream>
 #include <vector>
+#include <algorithm>
 
 using namespace std;
 
@@ -44,6 +45,8 @@ struct Calls{
 };
 
 Calls llamadas(vector<Lines>);
+void Ordenar(vector<Calls>&);
+void Ordenar2(vector<Calls>&,int,int,int);
 
 int main(int argc, char* argv[]){
 	vector<Calls> calls;
@@ -189,8 +192,45 @@ int main(int argc, char* argv[]){
 	}*/
 	for (int i = 0; i < 20; i++){
 		calls.push_back(llamadas(lines));
-		cout<<"I--->"<<i<<"  "<<calls.at(i).from<<"   "<<calls.at(i).to<<"   "<<toString(calls.at(i).start)<<"   "<<toString(calls.at(i).end)<<endl;	
+		//cout<<"I--->"<<i<<"  "<<calls.at(i).from<<"   "<<calls.at(i).to<<"   "<<toString(calls.at(i).start);
+		//cout<<"   "<<toString(calls.at(i).end)<<endl;	
 	}
+	cout<<"ANTES"<<endl;
+	Ordenar(calls);
+	/*for (int i = 0; i < calls.size()-1; i++){
+		for (int j = i+1; j < calls.size(); j++){
+			cout<<j;
+			if(calls.at(i).start[1] > calls.at(j).start[1]){
+				swap(calls.at(i), calls.at(j));
+
+			}
+		}
+	}*/
+	cout<<"DESPUES"<<endl;
+	for (int i = 0; i < calls.size(); i++){
+		//calls.push_back(llamadas(lines));
+		cout<<toString(calls.at(i).start)<<endl;	
+	}
+	/*cout<<endl;
+	for (int i = 0; i < calls.size(); i++){
+		//calls.push_back(llamadas(lines));
+		cout<<"---"<<calls.at(i).start[2];	
+	}
+	cout<<endl;
+	for (int i = 0; i < calls.size(); i++){
+		//calls.push_back(llamadas(lines));
+		cout<<"---"<<calls.at(i).start[3];	
+	}
+	cout<<endl;
+	for (int i = 0; i < calls.size(); i++){
+		//calls.push_back(llamadas(lines));
+		cout<<"---"<<calls.at(i).start[4];	
+	}
+	cout<<endl;
+	for (int i = 0; i < calls.size(); i++){
+		//calls.push_back(llamadas(lines));
+		cout<<"---"<<calls.at(i).start[5];	
+	}*/
 	return 0;
 }
 
@@ -229,13 +269,6 @@ int* final(int* inicio){
 		fin[4] = rand() % 59 + 1;
 		fin[5] = rand() % 59 + 1;
 	}
-	/*cout<<toString(inicio)<<endl;
-	cout<<"fin[0] "<<fin[0]<<endl;
-	cout<<"fin[1] "<<fin[1]<<endl;
-	cout<<"fin[2] "<<fin[2]<<endl;
-	cout<<"fin[3] "<<fin[3]<<endl;
-	cout<<"fin[4] "<<fin[4]<<endl;
-	cout<<"fin[5] "<<fin[5]<<endl;*/ 
 	return fin;
 }
 
@@ -267,9 +300,9 @@ Calls llamadas(vector<Lines> lineas){
 	call.from = lineas.at(pos).number;
 	//cout<<"FROM    "<<call.from<<"    POS    "<<pos<<endl;
 	call.start = inicio();
-	cout<<"START-->"<<toString(call.start)<<endl;
+	//cout<<"START-->"<<toString(call.start)<<endl;
 	call.end = final(call.start);
-	cout<<"END---->"<<toString(call.end)<<endl;
+	//cout<<"END---->"<<toString(call.end)<<endl;
 	int pos2 = rand() % size + 0;
 	while(lineas.at(pos).ID == lineas.at(pos2).ID){
 		pos2 = rand() % size + 0;	
@@ -279,7 +312,52 @@ Calls llamadas(vector<Lines> lineas){
 	return call;
 }
 
-/*void Ordenar(){
+/*void Ordenar(vector<Calls>& calls){
+	for (int i = 0; i < calls.size()-1; i++){
+		for (int j = i+1; j < calls.size(); j++){
+			//cout<<j;
+			if(calls.at(i).start[1] > calls.at(j).start[1]){
+				/*Calls llamada = calls.at(i);
+				calls.erase(calls.begin() + i);
+				calls.insert(i, calls.at(j));
+				calls.erase(calls.begin() + j);
+				calls.insert(j, llamada);
+				swap(calls.at(i), calls.at(j));
 
+			}
+		}
+	}
 }*/
+
+void Ordenar(vector<Calls>& calls){
+	Ordenar2(calls,1,0,calls.size());
+	//cout<<"SI1"<<endl;
+	int cont;
+	int contador = 1;
+	while(contador < 5){
+		cont = 0;
+		for(int j = 0; j < calls.size(); j++){
+			for (int i = cont + 1; i < calls.size() ; i++){
+				if(calls.at(i).start[contador] != calls.at(cont).start[contador]){
+					Ordenar2(calls,contador+1,cont,i);
+					cout<<"SI"<<cont<<"   "<<i<<endl;
+					cont = i;
+					break;
+				}
+			}
+		}
+		contador++;
+	}
+}
+
+void Ordenar2(vector<Calls>& calls,int pos, int beg, int end){
+	for (int i = beg; i < end -1; i++){
+		for (int j = i+1; j < end; j++){
+			if(calls.at(i).start[pos] > calls.at(j).start[pos]){
+				swap(calls.at(i),calls.at(j));
+			}
+		}
+	}
+}
+
 
