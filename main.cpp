@@ -211,26 +211,6 @@ int main(int argc, char* argv[]){
 		//calls.push_back(llamadas(lines));
 		cout<<toString(calls.at(i).start)<<endl;	
 	}
-	/*cout<<endl;
-	for (int i = 0; i < calls.size(); i++){
-		//calls.push_back(llamadas(lines));
-		cout<<"---"<<calls.at(i).start[2];	
-	}
-	cout<<endl;
-	for (int i = 0; i < calls.size(); i++){
-		//calls.push_back(llamadas(lines));
-		cout<<"---"<<calls.at(i).start[3];	
-	}
-	cout<<endl;
-	for (int i = 0; i < calls.size(); i++){
-		//calls.push_back(llamadas(lines));
-		cout<<"---"<<calls.at(i).start[4];	
-	}
-	cout<<endl;
-	for (int i = 0; i < calls.size(); i++){
-		//calls.push_back(llamadas(lines));
-		cout<<"---"<<calls.at(i).start[5];	
-	}*/
 	return 0;
 }
 
@@ -312,22 +292,6 @@ Calls llamadas(vector<Lines> lineas){
 	return call;
 }
 
-/*void Ordenar(vector<Calls>& calls){
-	for (int i = 0; i < calls.size()-1; i++){
-		for (int j = i+1; j < calls.size(); j++){
-			//cout<<j;
-			if(calls.at(i).start[1] > calls.at(j).start[1]){
-				/*Calls llamada = calls.at(i);
-				calls.erase(calls.begin() + i);
-				calls.insert(i, calls.at(j));
-				calls.erase(calls.begin() + j);
-				calls.insert(j, llamada);
-				swap(calls.at(i), calls.at(j));
-
-			}
-		}
-	}
-}*/
 
 void Ordenar(vector<Calls>& calls){
 	Ordenar2(calls,1,0,calls.size());
