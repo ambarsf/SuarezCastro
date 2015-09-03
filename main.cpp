@@ -163,33 +163,10 @@ int main(int argc, char* argv[]){
 		strcpy(line.ID,client.ID);
 		lines.push_back(line);
 	}
-
-	/*for (int i = 0; i < clients.size(); i++)
-	{
-		Clients client=clients[i];
-		cout<<client.ID<<endl;
-	}*/
 	for (int i = 0; i < 20; i++){
 		calls.push_back(llamadas(lines));
-		//cout<<"I--->"<<i<<"  "<<calls.at(i).from<<"   "<<calls.at(i).to<<"   "<<toString(calls.at(i).start);
-		//cout<<"   "<<toString(calls.at(i).end)<<endl;	
 	}
-	cout<<"ANTES"<<endl;
 	Ordenar(calls);
-	/*for (int i = 0; i < calls.size()-1; i++){
-		for (int j = i+1; j < calls.size(); j++){
-			cout<<j;
-			if(calls.at(i).start[1] > calls.at(j).start[1]){
-				swap(calls.at(i), calls.at(j));
-
-			}
-		}
-	}*/
-	cout<<"DESPUES"<<endl;
-	for (int i = 0; i < calls.size(); i++){
-		//calls.push_back(llamadas(lines));
-		cout<<toString(calls.at(i).start)<<endl;	
-	}
 	return 0;
 }
 
@@ -235,7 +212,6 @@ int mayor(int num, int limit){
 	int retval = rand() % limit + num;
 	while(retval > limit){
 		retval = rand() % limit + num;
-		//cout<<endl<<"LIMIT"<<limit<<"MAYOR"<<retval<<endl;
 	}
 	return retval;
 }
@@ -257,26 +233,19 @@ Calls llamadas(vector<Lines> lineas){
 	int size = lineas.size() - 1;
 	int pos = rand() % size + 0;
 	strcpy(call.from,lineas.at(pos).number);
-	//call.from = lineas.at(pos).number;//replaced by strcpy
-	//cout<<"FROM    "<<call.from<<"    POS    "<<pos<<endl;
 	call.start = inicio();
-	//cout<<"START-->"<<toString(call.start)<<endl;
 	call.end = final(call.start);
-	//cout<<"END---->"<<toString(call.end)<<endl;
 	int pos2 = rand() % size + 0;
 	while(lineas.at(pos).ID == lineas.at(pos2).ID){
 		pos2 = rand() % size + 0;	
 	}
 	strcpy(call.to,lineas.at(pos2).number);
-	//call.to = lineas.at(pos2).number;//replaced by strcpy
-	//cout<<"TO    "<<call.to<<"    POS2    "<<pos2<<endl;
 	return call;
 }
 
 
 void Ordenar(vector<Calls>& calls){
 	Ordenar2(calls,1,0,calls.size());
-	//cout<<"SI1"<<endl;
 	int cont;
 	int contador = 1;
 	while(contador < 5){
@@ -285,7 +254,6 @@ void Ordenar(vector<Calls>& calls){
 			for (int i = cont + 1; i < calls.size() ; i++){
 				if(calls.at(i).start[contador] != calls.at(cont).start[contador]){
 					Ordenar2(calls,contador+1,cont,i);
-					cout<<"SI"<<cont<<"   "<<i<<endl;
 					cont = i;
 					break;
 				}
