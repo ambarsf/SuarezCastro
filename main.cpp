@@ -38,10 +38,10 @@ struct Cities{
 
 //struct for calls
 struct Calls{
-	int from; // numero de quien hace la llamada
+	char from[8]; // numero de quien hace la llamada
 	int* start; // muy feo estar escribiendo beginning
 	int* end;
-	int to;// numero a quien se esta llamando 
+	char to[8];// numero a quien se esta llamando 
 };
 
 Calls llamadas(vector<Lines>);
@@ -256,7 +256,8 @@ Calls llamadas(vector<Lines> lineas){
 	Calls call;
 	int size = lineas.size() - 1;
 	int pos = rand() % size + 0;
-	call.from = lineas.at(pos).number;
+	strcpy(call.from,lineas.at(pos).number);
+	//call.from = lineas.at(pos).number;//replaced by strcpy
 	//cout<<"FROM    "<<call.from<<"    POS    "<<pos<<endl;
 	call.start = inicio();
 	//cout<<"START-->"<<toString(call.start)<<endl;
@@ -266,7 +267,8 @@ Calls llamadas(vector<Lines> lineas){
 	while(lineas.at(pos).ID == lineas.at(pos2).ID){
 		pos2 = rand() % size + 0;	
 	}
-	call.to = lineas.at(pos2).number;
+	strcpy(call.to,lineas.at(pos2).number);
+	//call.to = lineas.at(pos2).number;//replaced by strcpy
 	//cout<<"TO    "<<call.to<<"    POS2    "<<pos2<<endl;
 	return call;
 }
