@@ -19,7 +19,7 @@ int mayor(int,int);
 
 //struct for clients 
 struct Clients{
-	char ID[13];
+	char ID[14];
 	char name[40];
 	char gender;
 };
@@ -135,15 +135,18 @@ int main(int argc, char* argv[]){
 		cout<<"Unable to open file"<<endl;
 	}
 
-	//fill the clients vector
-	for (int i = 0; i < 500; i++)
-	{
+	//fill the clients vector	
+	ofstream file ("clients.bin", ofstream::binary);
+	for (int i = 0; i < 500; i++){
 		Clients client;
 		strcpy(client.ID,ClientId[i]);
 		strcpy(client.name,ClientName[i]);
 		client.gender=Gender();
-		clients.push_back(client);
+		//clients.push_back(client);
+		file.write(reinterpret_cast<const char*>(&client), sizeof(client));
 	}
+	cout<<"Clients File Has Been Written :)"<<endl;
+	file.close();
 
 	//fill the Cities vector
 	for (int i = 0; i < 30; i++)
