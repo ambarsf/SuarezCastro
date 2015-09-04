@@ -26,7 +26,7 @@ struct Clients{
 
 //struct for lines per client
 struct Lines{
-	char number[8];
+	char number[11];
 	char ID[13];
 };
 
@@ -38,10 +38,10 @@ struct Cities{
 
 //struct for calls
 struct Calls{
-	char from[8]; // numero de quien hace la llamada
+	char from[11]; // numero de quien hace la llamada
 	int* start; // muy feo estar escribiendo beginning
 	int* end;
-	char to[8];// numero a quien se esta llamando 
+	char to[11];// numero a quien se esta llamando 
 };
 
 Calls llamadas(vector<Lines>);
@@ -68,9 +68,7 @@ int main(int argc, char* argv[]){
 	}else{
 		cout<<"ERROR"<<endl;
 	}
-	/*for (int i = 0; i < 500; ++i){
-		cout<<ClientId[i]<<endl;
-	}*/
+	
 
 	// Read Clients
 	char** ClientName= new char* [500];
@@ -104,9 +102,10 @@ int main(int argc, char* argv[]){
 		cout<<"Unable to open file"<<endl;
 	}
 
+
 	// Read Phone Numbers
 	char** PhoneNumbers=new char*[750];
-	char numbers[8];
+	char numbers[11];
 	ifstream phonefile("RandomPhoneNumbers.txt");
 	if (phonefile.is_open()){
 		for (int i = 0; i < 750; i++)
@@ -122,7 +121,7 @@ int main(int argc, char* argv[]){
 
 	// Read Cities ID
 	char** CitiesID=new char*[30];
-	char cityID[3];
+	char cityID[4];
 	ifstream CityIDfile("CityID.txt");
 	if (CityIDfile.is_open()){
 		for (int i = 0; i < 30; i++)
