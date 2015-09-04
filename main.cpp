@@ -136,26 +136,33 @@ int main(int argc, char* argv[]){
 	}
 
 	//fill the clients vector	
-	ofstream file ("clients.bin", ofstream::binary);
 	for (int i = 0; i < 500; i++){
 		Clients client;
 		strcpy(client.ID,ClientId[i]);
 		strcpy(client.name,ClientName[i]);
 		client.gender=Gender();
-		//clients.push_back(client);
-		file.write(reinterpret_cast<const char*>(&client), sizeof(client));
+		clients.push_back(client);
 	}
-	cout<<"Clients File Has Been Written :)"<<endl;
-	file.close();
 
 	//fill the Cities vector
-	for (int i = 0; i < 30; i++)
-	{
-		Cities city;
-		strcpy(city.IDCity,CitiesID[i]);
-		strcpy(city.CityName,CityName[i]);
-		cities.push_back(city);
+	ifstream file("cities.bin", ifstream::binary);
+	Cities ciudades;
+	if (file.fail()){
+		ofstream citiesfile ("cities.bin", ofstream::binary);
+		for (int i = 0; i < 30; i++)
+		{
+			Cities city;
+			strcpy(city.IDCity,CitiesID[i]);
+			strcpy(city.CityName,CityName[i]);
+			citiesfile.write(reinterpret_cast<const char*>(&city), sizeof(city));
+		}
+		cout<<"Cities file has been written"<<endl;
+		citiesfile.close();
 	}
+	while(file.read(reinterpret_cast<char*>(&ciudades), sizeof(ciudades))){
+		cities.push_back(ciudades);
+	}//fin while
+	file.close();	
 
 	for (int i = 0; i < 500; i++)
 	{
