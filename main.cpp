@@ -54,6 +54,7 @@ int main(int argc, char* argv[]){
 	vector<Cities> cities;
 	vector<Lines> lines;
 	srand(time(0));
+
 	//leer los id
 	char** ClientId = new char* [500];
 	char tempid[14];
@@ -165,26 +166,21 @@ int main(int argc, char* argv[]){
 	file.close();
 
 	//fill the lines		
-	ifstream lineasfile("lines.bin", ifstream::binary);
-	Lines lineas;
-	if (lineasfile.fail()){
-		ofstream linesfile ("lines.bin", ofstream::binary);
-		for (int i = 0; i < 500; i++)
-		{
-			Clients client=clients[i];
-			Lines line;
-			strcpy(line.number,PhoneNumbers[i]);
-			strcpy(line.ID,client.ID);
-			linesfile.write(reinterpret_cast<const char*>(&line), sizeof(line));
-		}
-		cout<<"Lines file has been written"<<endl;
-		linesfile.close();
+	for (int j = 0; j < 500; j++)
+	{
+		Clients client=clients[j];
+		Lines line;
+		strcpy(line.number,PhoneNumbers[j]);
+		strcpy(line.ID,client.ID);
+		lines.push_back(line);	
 	}
-	while(lineasfile.read(reinterpret_cast<char*>(&lineas), sizeof(lineas))){
-		lines.push_back(lineas);
-	}//fin while
-	lineasfile.close();
-
+	for (int i = 0; i < lines.size(); i++)
+	{
+		cout<<lines[i].number<<endl;
+		cout<<lines[i].ID<<endl;
+		cout<<endl;
+	}
+		
 
 	for (int i = 0; i < 20; i++){
 		calls.push_back(llamadas(lines));
