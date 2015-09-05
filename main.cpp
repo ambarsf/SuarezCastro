@@ -27,12 +27,12 @@ struct Clients{
 //struct for lines per client
 struct Lines{
 	char number[11];
-	char ID[13];
+	char ID[14];
 };
 
 //struct for cities
 struct Cities{
-	char IDCity[3];
+	char IDCity[4];
 	char CityName [40];
 };
 
@@ -157,7 +157,7 @@ int main(int argc, char* argv[]){
 			strcpy(city.CityName,CityName[i]);
 			citiesfile.write(reinterpret_cast<const char*>(&city), sizeof(city));
 		}
-		cout<<"Cities file has been written"<<endl;
+		cout<<"Cities file has been written :)"<<endl;
 		citiesfile.close();
 	}
 	while(file.read(reinterpret_cast<char*>(&ciudades), sizeof(ciudades))){
@@ -165,25 +165,29 @@ int main(int argc, char* argv[]){
 	}//fin while
 	file.close();
 
-	//fill the lines		
-	for (int j = 0; j < 500; j++)
-	{
-		Clients client=clients[j];
-		Lines line;
-		strcpy(line.number,PhoneNumbers[j]);
-		strcpy(line.ID,client.ID);
-		lines.push_back(line);	
+	// fill the lines
+	ifstream linesfile ("lines.bin",ifstream::binary);
+	Lines lineas;
+	if(linesfile.fail()){
+	ofstream lineasfile("lines.bin", ofstream::binary);	
+		for (int j = 0; j < 500; j++)
+		{
+			Lines line;
+			strcpy(line.number,PhoneNumbers[j]);
+			strcpy(line.ID,ClientId[j]);
+			lines.push_back(line);
+			lineasfile.write(reinterpret_cast<const char*>(&line), sizeof(line));
+		}
+		cout<<"Lines file has been written :)"<<endl;
+		lineasfile.close();
 	}
-	for (int i = 0; i < lines.size(); i++)
-	{
-		cout<<lines[i].number<<endl;
-		cout<<lines[i].ID<<endl;
-		cout<<endl;
-	}
+	while(linesfile.read(reinterpret_cast<char*>(&lineas), sizeof(lineas))){
+		lines.push_back(lineas);
+	}//fin while
+	linesfile.close();
 		
-
 	for (int i = 0; i < 20; i++){
-		calls.push_back(llamadas(lines));
+		//calls.push_back(llamadas(lines));
 	}
 	Ordenar(calls);
 	return 0;
