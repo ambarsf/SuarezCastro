@@ -144,7 +144,7 @@ int main(int argc, char* argv[]){
 		clients.push_back(client);
 	}
 
-	//fill the Cities vector
+	//fill the Cities 
 	ifstream file("cities.bin", ifstream::binary);
 	Cities ciudades;
 	if (file.fail()){
@@ -162,16 +162,30 @@ int main(int argc, char* argv[]){
 	while(file.read(reinterpret_cast<char*>(&ciudades), sizeof(ciudades))){
 		cities.push_back(ciudades);
 	}//fin while
-	file.close();	
+	file.close();
 
-	for (int i = 0; i < 500; i++)
-	{
-		Clients client=clients[i];
-		Lines line;
-		strcpy(line.number,PhoneNumbers[i]);
-		strcpy(line.ID,client.ID);
-		lines.push_back(line);
+	//fill the lines		
+	ifstream lineasfile("lines.bin", ifstream::binary);
+	Lines lineas;
+	if (lineasfile.fail()){
+		ofstream linesfile ("lines.bin", ofstream::binary);
+		for (int i = 0; i < 500; i++)
+		{
+			Clients client=clients[i];
+			Lines line;
+			strcpy(line.number,PhoneNumbers[i]);
+			strcpy(line.ID,client.ID);
+			linesfile.write(reinterpret_cast<const char*>(&line), sizeof(line));
+		}
+		cout<<"Lines file has been written"<<endl;
+		linesfile.close();
 	}
+	while(lineasfile.read(reinterpret_cast<char*>(&lineas), sizeof(lineas))){
+		lines.push_back(lineas);
+	}//fin while
+	lineasfile.close();
+
+
 	for (int i = 0; i < 20; i++){
 		calls.push_back(llamadas(lines));
 	}
