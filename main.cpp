@@ -22,6 +22,7 @@ struct Clients{
 	char ID[14];
 	char name[40];
 	char gender;
+	char cityID[4];
 };
 
 //struct for lines per client
@@ -136,14 +137,28 @@ int main(int argc, char* argv[]){
 		cout<<"Unable to open file"<<endl;
 	}
 
-	//fill the clients vector	
-	for (int i = 0; i < 500; i++){
-		Clients client;
-		strcpy(client.ID,ClientId[i]);
-		strcpy(client.name,ClientName[i]);
-		client.gender=Gender();
-		clients.push_back(client);
+	//fill the clients vector
+	ifstream clientsfile("clients.bin", ifstream::binary);
+	Clients clientes;
+	if (clientsfile.fail()){
+		ofstream clientesfile("clients.bin", ofstream::binary);
+		for (int i = 0; i < 500; i++){
+			Clients client;
+			strcpy(client.ID,ClientId[i]);
+			strcpy(client.name,ClientName[i]);
+			int random=rand()%30;
+			strcpy(client.cityID,CitiesID[random]);
+			client.gender=Gender();
+			clientesfile.write(reinterpret_cast<const char*>(&client), sizeof(client));
+		}
+		cout<<"Clients file has been written :)"<<endl;
+		clientesfile.close();
 	}
+	while(clientsfile.read(reinterpret_cast<char*>(&clientes), sizeof(clientes))){
+		clients.push_back(clientes);
+	}//fin while
+	clientsfile.close();
+
 
 	//fill the Cities 
 	ifstream file("cities.bin", ifstream::binary);
