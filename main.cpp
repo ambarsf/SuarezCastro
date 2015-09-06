@@ -13,7 +13,7 @@ using namespace std;
 
 char Gender();
 int* inicio();
-const char* toString(int*);
+char* toString(int*);
 int* final(int*);
 int mayor(int,int);
 double CalcularTarifa(double,double,double);
@@ -40,8 +40,8 @@ struct Cities{
 //struct for calls
 struct Calls{
 	char from[11]; // numero de quien hace la llamada
-	int* start; // muy feo estar escribiendo beginning
-	int* end;
+	char start[15]; // muy feo estar escribiendo beginning
+	char end[15];
 	char to[11];// numero a quien se esta llamando
 	double tarifa; 
 };
@@ -50,6 +50,8 @@ Calls llamadas(vector<Lines>);
 void Ordenar(vector<Calls>&);
 void Ordenar2(vector<Calls>&,int,int,int);
 double Tarifa(int*,int*);
+//void swaps(Calls&, Calls&);
+int* toInt(char*);
 
 int main(int argc, char* argv[]){
 	vector<Calls> calls;
@@ -160,8 +162,6 @@ int main(int argc, char* argv[]){
 		clients.push_back(clientes);
 	}//fin while
 	clientsfile.close();
-
-	cout<<"HHHHHHHH"<<endl;
 	//fill the Cities 
 	ifstream file("cities.bin", ifstream::binary);
 	Cities ciudades;
@@ -181,7 +181,6 @@ int main(int argc, char* argv[]){
 		cities.push_back(ciudades);
 	}//fin while
 	file.close();
-	cout<<"LIJKLNM"<<endl;
 	// fill the lines
 	ifstream linesfile ("lines.bin",ifstream::binary);
 	Lines lineas;
@@ -202,12 +201,11 @@ int main(int argc, char* argv[]){
 		lines.push_back(lineas);
 	}//fin while
 	linesfile.close();
-	cout<<"uyjgvkhblk"<<endl;
 	ifstream file_calls1("calls.bin", ifstream::binary);
 	Calls llamadas_1;
 	if(file_calls1.fail()){	
 		ofstream file_calls("calls.bin",ofstream::binary);
-		for (int i = 0; i < 5000; i++){
+		for (int i = 0; i < 500; i++){
 			calls.push_back(llamadas(lines));
 		}
 		for (int i = 0; i < calls.size(); i++){
@@ -216,11 +214,9 @@ int main(int argc, char* argv[]){
 		}
 		file_calls.close();
 	}else{
-		cout<<"AASAS"<<endl;
 		while(file_calls1.read(reinterpret_cast<char*>(&llamadas_1), sizeof(llamadas_1))){
 			calls.push_back(llamadas_1);
 		}
-		cout<<"ASASASASDAD"<<endl;
 		file_calls1.close();
 	}
 	Ordenar(calls);
@@ -273,7 +269,7 @@ int mayor(int num, int limit){
 	return retval;
 }
 
-const char* toString(int * ints){
+char* toString(int * ints){
 	stringstream ss;
 	for (int i = 0; i < 6; i++){
 		if(10 - ints[i] > 0){
@@ -282,7 +278,7 @@ const char* toString(int * ints){
 			ss<<ints[i];	
 		}
 	}
-	return ss.str().c_str();
+	return (char*)ss.str().c_str();
 }
 
 Calls llamadas(vector<Lines> lineas){
@@ -290,14 +286,14 @@ Calls llamadas(vector<Lines> lineas){
 	int size = lineas.size() - 1;
 	int pos = rand() % size + 0;
 	strcpy(call.from,lineas.at(pos).number);
-	call.start = inicio();
-	call.end = final(call.start);
+	strcpy(call.start,toString(inicio()));
+	strcpy(call.end,toString(final(toInt(call.start))));
 	int pos2 = rand() % size + 0;
 	while(lineas.at(pos).ID == lineas.at(pos2).ID){
 		pos2 = rand() % size + 0;	
 	}
 	strcpy(call.to,lineas.at(pos2).number);
-	call.tarifa = Tarifa(call.start, call.end);
+	call.tarifa = Tarifa(toInt(call.start), toInt(call.end));
 	return call;
 }
 
@@ -333,14 +329,16 @@ double CalcularTarifa(double inicio, double fin, double valor){
 
 
 void Ordenar(vector<Calls>& calls){
+	//cout<<"ORDENAR0"<<endl;
 	Ordenar2(calls,1,0,calls.size());
+	//cout<<"ORDENAR"<<endl;
 	int cont;
 	int contador = 1;
 	while(contador < 5){
 		cont = 0;
 		for(int j = 0; j < calls.size(); j++){
 			for (int i = cont + 1; i < calls.size() ; i++){
-				if(calls.at(i).start[contador] != calls.at(cont).start[contador]){
+				if(toInt(calls.at(i).start)[contador] != toInt(calls.at(cont).start)[contador]){
 					Ordenar2(calls,contador+1,cont,i);
 					cont = i;
 					break;
@@ -349,17 +347,40 @@ void Ordenar(vector<Calls>& calls){
 		}
 		contador++;
 	}
-	cout<<"BIEN"<<endl;
+	//cout<<"BIEN"<<endl;
 }
 
 void Ordenar2(vector<Calls>& calls,int pos, int beg, int end){
+	//cout<<"ORDENAR1"<<endl;
 	for (int i = beg; i < end -1; i++){
 		for (int j = i+1; j < end; j++){
-			if(calls.at(i).start[pos] > calls.at(j).start[pos]){
+			//cout<<toInt(calls.at(i).start)[pos]<<"   ";
+			//cout<<toInt(calls.at(j).start)[pos]<<endl;
+			if(toInt(calls.at(i).start)[pos] > toInt(calls.at(j).start)[pos]){
+				//cout<<"ORDENAR3"<<endl;
 				swap(calls.at(i),calls.at(j));
+				//cout<<"ORDENAR4"<<endl;
 			}
 		}
 	}
 }
 
+/*void swaps(Calls &uno, Calls &dos){
+	Calls temp = uno;
+	uno = dos;
+	dos = temp;
+}*/
+
+int* toInt(char* string){
+	int* retval = new int[6];
+	retval[0] = 2015;
+	int cont = 1;
+	for (int i = 4; i < 13; i+=2){
+		stringstream ss;
+		ss<<string[i]<<string[i+1];
+		retval[cont] = atoi(ss.str().c_str());
+		cont++;
+	}
+	return retval;
+}
 
