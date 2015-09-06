@@ -16,6 +16,7 @@ int* inicio();
 const char* toString(int*);
 int* final(int*);
 int mayor(int,int);
+double CalcularTarifa(double,double,double);
 
 //struct for clients 
 struct Clients{
@@ -30,7 +31,6 @@ struct Lines{
 	char number[11];
 	char ID[14];
 };
-
 //struct for cities
 struct Cities{
 	char IDCity[4];
@@ -42,12 +42,14 @@ struct Calls{
 	char from[11]; // numero de quien hace la llamada
 	int* start; // muy feo estar escribiendo beginning
 	int* end;
-	char to[11];// numero a quien se esta llamando 
+	char to[11];// numero a quien se esta llamando
+	double tarifa; 
 };
 
 Calls llamadas(vector<Lines>);
 void Ordenar(vector<Calls>&);
 void Ordenar2(vector<Calls>&,int,int,int);
+double Tarifa(int*,int*);
 
 int main(int argc, char* argv[]){
 	vector<Calls> calls;
@@ -159,7 +161,7 @@ int main(int argc, char* argv[]){
 	}//fin while
 	clientsfile.close();
 
-
+	cout<<"HHHHHHHH"<<endl;
 	//fill the Cities 
 	ifstream file("cities.bin", ifstream::binary);
 	Cities ciudades;
@@ -179,7 +181,7 @@ int main(int argc, char* argv[]){
 		cities.push_back(ciudades);
 	}//fin while
 	file.close();
-
+	cout<<"LIJKLNM"<<endl;
 	// fill the lines
 	ifstream linesfile ("lines.bin",ifstream::binary);
 	Lines lineas;
@@ -200,9 +202,26 @@ int main(int argc, char* argv[]){
 		lines.push_back(lineas);
 	}//fin while
 	linesfile.close();
-		
-	for (int i = 0; i < 20; i++){
-		//calls.push_back(llamadas(lines));
+	cout<<"uyjgvkhblk"<<endl;
+	ifstream file_calls1("calls.bin", ifstream::binary);
+	Calls llamadas_1;
+	if(file_calls1.fail()){	
+		ofstream file_calls("calls.bin",ofstream::binary);
+		for (int i = 0; i < 5000; i++){
+			calls.push_back(llamadas(lines));
+		}
+		for (int i = 0; i < calls.size(); i++){
+			Calls llam = calls.at(i);
+			file_calls.write(reinterpret_cast<const char*>(&llam), sizeof(llam));
+		}
+		file_calls.close();
+	}else{
+		cout<<"AASAS"<<endl;
+		while(file_calls1.read(reinterpret_cast<char*>(&llamadas_1), sizeof(llamadas_1))){
+			calls.push_back(llamadas_1);
+		}
+		cout<<"ASASASASDAD"<<endl;
+		file_calls1.close();
 	}
 	Ordenar(calls);
 	return 0;
@@ -278,7 +297,38 @@ Calls llamadas(vector<Lines> lineas){
 		pos2 = rand() % size + 0;	
 	}
 	strcpy(call.to,lineas.at(pos2).number);
+	call.tarifa = Tarifa(call.start, call.end);
 	return call;
+}
+
+double Tarifa(int* inicio, int* fin){
+	double begin = inicio[3] + inicio[4]/60 + inicio[5]/3600;
+	double end = fin[3] + fin[4]/60 + fin[5]/3600;
+	double valor = CalcularTarifa(begin,end,0);
+	return valor;
+}
+
+double CalcularTarifa(double inicio, double fin, double valor){
+	int range = 0;
+	double dig = 0;
+	while(fin > range){
+		range = 0;
+		if(inicio >= 0 && inicio < 8){
+			range = 8;
+			dig = 0.6;
+		}else if(inicio >= 8 && inicio < 16){
+			range = 16;
+			dig = 2.4;
+		}else{
+			range = 24;
+			dig = 3;
+		}
+		//cout<<"RANGE"<<range<<"FIN"<<fin<<"INICI"<<inicio<<"DIG"<<dig<<endl;
+		valor += (range-inicio)*dig;
+		inicio = range;
+		//cout<<valor<<endl;
+	}
+	return valor+=(fin - inicio)*dig;
 }
 
 
@@ -299,6 +349,7 @@ void Ordenar(vector<Calls>& calls){
 		}
 		contador++;
 	}
+	cout<<"BIEN"<<endl;
 }
 
 void Ordenar2(vector<Calls>& calls,int pos, int beg, int end){
