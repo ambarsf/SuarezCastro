@@ -24,17 +24,23 @@ struct Clients{
 	char name[40];
 	char gender;
 	char cityID[4];
+	int posicion;
+	bool available;
 };
 
 //struct for lines per client
 struct Lines{
 	char number[11];
 	char ID[14];
+	int posicion;
+	bool available;
 };
 //struct for cities
 struct Cities{
 	char IDCity[4];
 	char CityName [40];
+	int posicion;
+	bool available;
 };
 
 //struct for calls
@@ -153,6 +159,8 @@ int main(int argc, char* argv[]){
 			int random=rand()%30;
 			strcpy(client.cityID,CitiesID[random]);
 			client.gender=Gender();
+			client.posicion=-1;
+			client.available=false;
 			clientesfile.write(reinterpret_cast<const char*>(&client), sizeof(client));
 		}
 		cout<<"Clients file has been written :)"<<endl;
@@ -162,6 +170,7 @@ int main(int argc, char* argv[]){
 		clients.push_back(clientes);
 	}//fin while
 	clientsfile.close();
+
 	//fill the Cities 
 	ifstream file("cities.bin", ifstream::binary);
 	Cities ciudades;
@@ -172,6 +181,8 @@ int main(int argc, char* argv[]){
 			Cities city;
 			strcpy(city.IDCity,CitiesID[i]);
 			strcpy(city.CityName,CityName[i]);
+			city.posicion=-1;
+			city.available=false;
 			citiesfile.write(reinterpret_cast<const char*>(&city), sizeof(city));
 		}
 		cout<<"Cities file has been written :)"<<endl;
@@ -181,26 +192,30 @@ int main(int argc, char* argv[]){
 		cities.push_back(ciudades);
 	}//fin while
 	file.close();
+
 	// fill the lines
 	ifstream linesfile ("lines.bin",ifstream::binary);
 	Lines lineas;
 	if(linesfile.fail()){
-	ofstream lineasfile("lines.bin", ofstream::binary);	
+		ofstream lineasfile("lines.bin", ofstream::binary);	
 		for (int j = 0; j < 500; j++)
 		{
 			Lines line;
 			strcpy(line.number,PhoneNumbers[j]);
 			strcpy(line.ID,ClientId[j]);
-			lines.push_back(line);
+			line.posicion=-1;
+			line.available=false;
 			lineasfile.write(reinterpret_cast<const char*>(&line), sizeof(line));
 		}
 		cout<<"Lines file has been written :)"<<endl;
 		lineasfile.close();
 	}
 	while(linesfile.read(reinterpret_cast<char*>(&lineas), sizeof(lineas))){
-		lines.push_back(lineas);
+		//lines.push_back(lineas);
 	}//fin while
 	linesfile.close();
+
+
 	ifstream file_calls1("calls.bin", ifstream::binary);
 	Calls llamadas_1;
 	if(file_calls1.fail()){	
