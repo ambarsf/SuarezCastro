@@ -211,7 +211,7 @@ int main(int argc, char* argv[]){
 		lineasfile.close();
 	}
 	while(linesfile.read(reinterpret_cast<char*>(&lineas), sizeof(lineas))){
-		//lines.push_back(lineas);
+		lines.push_back(lineas);
 	}//fin while
 	linesfile.close();
 
