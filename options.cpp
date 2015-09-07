@@ -3,6 +3,31 @@ using namespace std;
 int opciones();
 int menu();
 
+//struct for clients 
+struct Clients{
+	char ID[14];
+	char name[40];
+	char gender;
+	char cityID[4];
+	int posicion;
+	bool available;
+};
+
+//struct for lines per client
+struct Lines{
+	char number[11];
+	char ID[14];
+	int posicion;
+	bool available;
+};
+//struct for cities
+struct Cities{
+	char IDCity[4];
+	char CityName [40];
+	int posicion;
+	bool available;
+};
+
 int main (int argc, char* argv[]){
 	int opcion=opciones();
 	switch(opcion){
