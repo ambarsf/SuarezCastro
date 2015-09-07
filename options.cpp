@@ -1,4 +1,7 @@
 #include <iostream>
+#include <fstream>
+
+
 using namespace std;
 int opciones();
 int menu();
@@ -32,13 +35,28 @@ int main (int argc, char* argv[]){
 	int opcion=opciones();
 	switch(opcion){
 		case 1:{
+			ifstream file("clients.bin", ifstream::binary);
+			Clients client;
+			if (file.fail()){
+				cout<<"No se pudo abrir el archivo!"<<endl;
+			}
 			int option=menu();
 			switch (option){
 				case 1:{
 
 				};// end case create
 				case 2:{
-
+					cout<<"List of Clients: "<<endl;
+					while(file.read(reinterpret_cast<char*>(&client), sizeof(client))){
+						if (client.available==false){
+							cout<<"ID: "<<client.ID<<endl;
+							cout<<"Name: "<<client.name<<endl;
+							cout<<"Gender: "<<client.gender<<endl;
+							cout<<"CityID: "<<client.cityID<<endl;
+							cout<<endl;
+						}//fin if
+					}//fin while
+					file.close();
 				};// end case read
 				case 3:{
 
