@@ -27,7 +27,11 @@ struct Clients{
 	int posicion;
 	bool available;
 };
-
+//estructura para el indice de clientes y el de lineas
+struct Indice_Cli_Lin{
+	unsigned int RRN;
+	char Llave[14];
+};
 //struct for lines per client
 struct Lines{
 	char number[11];
@@ -56,8 +60,9 @@ Calls llamadas(vector<Lines>);
 void Ordenar(vector<Calls>&);
 void Ordenar2(vector<Calls>&,int,int,int);
 double Tarifa(int*,int*);
-//void swaps(Calls&, Calls&);
+void Organize(vector<char*>&);
 int* toInt(char*);
+char* Solucion(char*);
 
 int main(int argc, char* argv[]){
 	vector<Calls> calls;
@@ -151,7 +156,9 @@ int main(int argc, char* argv[]){
 	ifstream clientsfile("clients.bin", ifstream::binary);
 	Clients clientes;
 	if (clientsfile.fail()){
+		ofstream indice_clients("Ind_Clients",ofstream::binary);
 		ofstream clientesfile("clients.bin", ofstream::binary);
+		vector<char*> llaves_cli;
 		for (int i = 0; i < 500; i++){
 			Clients client;
 			strcpy(client.ID,ClientId[i]);
@@ -161,8 +168,16 @@ int main(int argc, char* argv[]){
 			client.gender=Gender();
 			client.posicion=-1;
 			client.available=false;
+			llaves_cli.push_back(client.ID);
 			clientesfile.write(reinterpret_cast<const char*>(&client), sizeof(client));
 		}
+		Organize(llaves_cli);
+			for (int i = 0; i < llaves_cli.size(); ++i){
+				Indice_Cli_Lin ind;
+				ind.RRN = i+1;
+				strcpy(ind.Llave,llaves_cli.at(i));
+				indice_clients.write(reinterpret_cast<const char*>(&ind), sizeof(ind));
+			}
 		cout<<"Clients file has been written :)"<<endl;
 		clientesfile.close();
 	}
@@ -176,8 +191,7 @@ int main(int argc, char* argv[]){
 	Cities ciudades;
 	if (file.fail()){
 		ofstream citiesfile ("cities.bin", ofstream::binary);
-		for (int i = 0; i < 30; i++)
-		{
+		for (int i = 0; i < 30; i++){
 			Cities city;
 			strcpy(city.IDCity,CitiesID[i]);
 			strcpy(city.CityName,CityName[i]);
@@ -197,16 +211,28 @@ int main(int argc, char* argv[]){
 	ifstream linesfile ("lines.bin",ifstream::binary);
 	Lines lineas;
 	if(linesfile.fail()){
-		ofstream lineasfile("lines.bin", ofstream::binary);	
-		for (int j = 0; j < 500; j++)
-		{
+		vector<char*> llaves_lines;
+		ofstream lineasfile("lines.bin", ofstream::binary);
+		ofstream indice_line("Ind_lines.bin", ofstream::binary);	
+		cout<<"1"<<endl;
+		for (int j = 0; j < 500; j++){
 			Lines line;
 			strcpy(line.number,PhoneNumbers[j]);
 			strcpy(line.ID,ClientId[j]);
+			llaves_lines.push_back(line.ID);
 			line.posicion=-1;
 			line.available=false;
+			lines.push_back(line);
 			lineasfile.write(reinterpret_cast<const char*>(&line), sizeof(line));
 		}
+		Organize(llaves_lines);
+			for (int i = 0; i < llaves_lines.size(); ++i){
+				Indice_Cli_Lin ind;
+				ind.RRN = i+1;
+				strcpy(ind.Llave,llaves_lines.at(i));
+				indice_line.write(reinterpret_cast<const char*>(&ind), sizeof(ind));
+			}
+		cout<<"2"<<endl;
 		cout<<"Lines file has been written :)"<<endl;
 		lineasfile.close();
 	}
@@ -215,14 +241,17 @@ int main(int argc, char* argv[]){
 	}//fin while
 	linesfile.close();
 
-
+	cout<<"3"<<endl;
 	ifstream file_calls1("calls.bin", ifstream::binary);
 	Calls llamadas_1;
 	if(file_calls1.fail()){	
 		ofstream file_calls("calls.bin",ofstream::binary);
+		cout<<lines.size()<<endl;
 		for (int i = 0; i < 500; i++){
 			calls.push_back(llamadas(lines));
 		}
+		Ordenar(calls);
+		cout<<"5"<<endl;
 		for (int i = 0; i < calls.size(); i++){
 			Calls llam = calls.at(i);
 			file_calls.write(reinterpret_cast<const char*>(&llam), sizeof(llam));
@@ -234,9 +263,26 @@ int main(int argc, char* argv[]){
 		}
 		file_calls1.close();
 	}
-	Ordenar(calls);
+	//Ordenar(calls);
 	return 0;
 }
+//char* Solucion(char str[14]){
+//	stringstream ss;
+//	ss<<str;
+//	return ss.str.c_str;
+//}
+void Organize(vector<char*> &list){
+	cout<<"4"<<endl;
+	for (int i = 0; i < list.size() - 1; i++){
+		for (int j = i + 1; j < list.size(); j++){
+			if(atoi(list.at(i)) > atoi(list.at(j))){
+				swap(list.at(i),list.at(j));
+			}
+		}
+	}	
+}
+
+
 
 char Gender(){
 	int num=(rand()%2);
@@ -379,12 +425,6 @@ void Ordenar2(vector<Calls>& calls,int pos, int beg, int end){
 		}
 	}
 }
-
-/*void swaps(Calls &uno, Calls &dos){
-	Calls temp = uno;
-	uno = dos;
-	dos = temp;
-}*/
 
 int* toInt(char* string){
 	int* retval = new int[6];
