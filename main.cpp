@@ -28,7 +28,12 @@ struct Clients{
 	bool available;
 };
 //estructura para el indice de clientes y el de lineas
-struct Indice_Cli_Lin{
+struct Indice/*_Cli_Lin*/{
+	unsigned int RRN;
+	char Llave[14];
+};
+
+struct Indice_City{
 	unsigned int RRN;
 	char Llave[14];
 };
@@ -135,7 +140,6 @@ int main(int argc, char* argv[]){
 	}else{
 		cout<<"Unable to open file"<<endl;
 	}
-
 	// Read Cities ID
 	char** CitiesID=new char*[30];
 	char cityID[4];
@@ -151,12 +155,11 @@ int main(int argc, char* argv[]){
 	}else{
 		cout<<"Unable to open file"<<endl;
 	}
-
 	//fill the clients vector
 	ifstream clientsfile("clients.bin", ifstream::binary);
 	Clients clientes;
 	if (clientsfile.fail()){
-		ofstream indice_clients("Ind_Clients",ofstream::binary);
+		ofstream indice_clients("Ind_Clients.bin",ofstream::binary);
 		ofstream clientesfile("clients.bin", ofstream::binary);
 		vector<char*> llaves_cli;
 		for (int i = 0; i < 500; i++){
@@ -173,7 +176,7 @@ int main(int argc, char* argv[]){
 		}
 		Organize(llaves_cli);
 			for (int i = 0; i < llaves_cli.size(); ++i){
-				Indice_Cli_Lin ind;
+				Indice ind;
 				ind.RRN = i+1;
 				strcpy(ind.Llave,llaves_cli.at(i));
 				indice_clients.write(reinterpret_cast<const char*>(&ind), sizeof(ind));
@@ -185,27 +188,37 @@ int main(int argc, char* argv[]){
 		clients.push_back(clientes);
 	}//fin while
 	clientsfile.close();
-
 	//fill the Cities 
-	ifstream file("cities.bin", ifstream::binary);
+	//ifstream file("cities.bin", ifstream::binary);
 	Cities ciudades;
-	if (file.fail()){
-		ofstream citiesfile ("cities.bin", ofstream::binary);
-		for (int i = 0; i < 30; i++){
-			Cities city;
-			strcpy(city.IDCity,CitiesID[i]);
-			strcpy(city.CityName,CityName[i]);
-			city.posicion=-1;
-			city.available=false;
-			citiesfile.write(reinterpret_cast<const char*>(&city), sizeof(city));
-		}
-		cout<<"Cities file has been written :)"<<endl;
-		citiesfile.close();
+	//if (file.fail()){
+	ofstream citiesfile ("cities.bin", ofstream::binary);
+	ofstream indice_city("indice_city.bin", ofstream::binary);
+	vector<char*> llaves_city;
+	for (int i = 0; i < 30; i++){
+		Cities city;
+		strcpy(city.IDCity,CitiesID[i]);
+		strcpy(city.CityName,CityName[i]);
+		city.posicion=-1;
+		city.available=false;
+		llaves_city.push_back(city.IDCity);
+		citiesfile.write(reinterpret_cast<const char*>(&city), sizeof(city));
 	}
-	while(file.read(reinterpret_cast<char*>(&ciudades), sizeof(ciudades))){
+	cout<<"Cities file has been written :)"<<endl;
+	citiesfile.close();
+	Organize(llaves_city);
+	for (int i = 0; i < llaves_city.size(); i++){
+		Indice ind_city;
+		ind_city.RRN = i + 1;
+		strcpy(ind_city.Llave, llaves_city.at(i));
+		indice_city.write(reinterpret_cast<const char*>(&ind_city), sizeof(ind_city));
+	}
+	indice_city.close();
+	//}
+	/*while(file.read(reinterpret_cast<char*>(&ciudades), sizeof(ciudades))){
 		cities.push_back(ciudades);
 	}//fin while
-	file.close();
+	file.close();*/
 
 	// fill the lines
 	ifstream linesfile ("lines.bin",ifstream::binary);
@@ -226,12 +239,12 @@ int main(int argc, char* argv[]){
 			lineasfile.write(reinterpret_cast<const char*>(&line), sizeof(line));
 		}
 		Organize(llaves_lines);
-			for (int i = 0; i < llaves_lines.size(); ++i){
-				Indice_Cli_Lin ind;
-				ind.RRN = i+1;
-				strcpy(ind.Llave,llaves_lines.at(i));
-				indice_line.write(reinterpret_cast<const char*>(&ind), sizeof(ind));
-			}
+		for (int i = 0; i < llaves_lines.size(); ++i){
+			Indice ind;
+			ind.RRN = i+1;
+			strcpy(ind.Llave,llaves_lines.at(i));
+			indice_line.write(reinterpret_cast<const char*>(&ind), sizeof(ind));
+		}
 		cout<<"2"<<endl;
 		cout<<"Lines file has been written :)"<<endl;
 		lineasfile.close();
@@ -240,37 +253,32 @@ int main(int argc, char* argv[]){
 		lines.push_back(lineas);
 	}//fin while
 	linesfile.close();
-
 	cout<<"3"<<endl;
-	ifstream file_calls1("calls.bin", ifstream::binary);
+	//ifstream file_calls1("calls.bin", ifstream::binary);
 	Calls llamadas_1;
-	if(file_calls1.fail()){	
-		ofstream file_calls("calls.bin",ofstream::binary);
-		cout<<lines.size()<<endl;
-		for (int i = 0; i < 500; i++){
-			calls.push_back(llamadas(lines));
-		}
-		Ordenar(calls);
-		cout<<"5"<<endl;
-		for (int i = 0; i < calls.size(); i++){
-			Calls llam = calls.at(i);
-			file_calls.write(reinterpret_cast<const char*>(&llam), sizeof(llam));
-		}
-		file_calls.close();
-	}else{
+	//if(file_calls1.fail()){	
+	ofstream file_calls("calls.bin",ofstream::binary);
+	cout<<lines.size()<<endl;
+	for (int i = 0; i < 500; i++){
+		calls.push_back(llamadas(lines));
+	}
+	Ordenar(calls);
+	cout<<"5"<<endl;
+	for (int i = 0; i < calls.size(); i++){
+		Calls llam = calls.at(i);
+		file_calls.write(reinterpret_cast<const char*>(&llam), sizeof(llam));
+	}
+	file_calls.close();
+	/*}else{
 		while(file_calls1.read(reinterpret_cast<char*>(&llamadas_1), sizeof(llamadas_1))){
 			calls.push_back(llamadas_1);
 		}
 		file_calls1.close();
-	}
+	}*/
 	//Ordenar(calls);
 	return 0;
 }
-//char* Solucion(char str[14]){
-//	stringstream ss;
-//	ss<<str;
-//	return ss.str.c_str;
-//}
+
 void Organize(vector<char*> &list){
 	cout<<"4"<<endl;
 	for (int i = 0; i < list.size() - 1; i++){
@@ -281,8 +289,6 @@ void Organize(vector<char*> &list){
 		}
 	}	
 }
-
-
 
 char Gender(){
 	int num=(rand()%2);
