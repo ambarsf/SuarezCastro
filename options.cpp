@@ -68,12 +68,26 @@ int main (int argc, char* argv[]){
 		};//fin case clients
 
 		case 2:{
+			ifstream file("lines.bin", ifstream::binary);
+			Lines lines;
+			if (file.fail()){
+				cout<<"No se pudo abrir el archivo!"<<endl;
+			}
 			int option=menu();
 			switch (option){
 				case 1:{
 
 				};// end case create
 				case 2:{
+					cout<<"List of Lines: "<<endl;
+					while(file.read(reinterpret_cast<char*>(&lines), sizeof(lines))){
+						if (lines.available==false){
+							cout<<"Number: "<<lines.number<<endl;
+							cout<<"ID: "<<lines.ID<<endl;
+							cout<<endl;
+						}//fin if
+					}//fin while
+					file.close();
 
 				};// end case read
 				case 3:{
@@ -86,12 +100,26 @@ int main (int argc, char* argv[]){
 		};//fin case lines
 
 		case 3:{
+			ifstream file("cities.bin", ifstream::binary);
+			Cities cities;
+			if (file.fail()){
+				cout<<"No se pudo abrir el archivo!"<<endl;
+			}
 			int option=menu();
 			switch (option){
 				case 1:{
 
 				};// end case create
 				case 2:{
+					cout<<"List of Cities: "<<endl;
+					while(file.read(reinterpret_cast<char*>(&cities), sizeof(cities))){
+						if (cities.available==false){
+							cout<<"Name: "<<cities.CityName<<endl;
+							cout<<"ID: "<<cities.IDCity<<endl;
+							cout<<endl;
+						}//fin if
+					}//fin while
+					file.close();
 
 				};// end case read
 				case 3:{
