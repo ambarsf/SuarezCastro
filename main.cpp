@@ -30,7 +30,7 @@ struct Clients{
 //estructura para el indice de clientes y el de lineas
 struct Indice/*_Cli_Lin*/{
 	unsigned int RRN;
-	char Llave[14];
+	unsigned long Llave;
 };
 
 struct Indice_City{
@@ -68,6 +68,7 @@ double Tarifa(int*,int*);
 void Organize(vector<char*>&);
 int* toInt(char*);
 char* Solucion(char*);
+int atois(char);
 
 int main(int argc, char* argv[]){
 	vector<Calls> calls;
@@ -97,8 +98,7 @@ int main(int argc, char* argv[]){
 	char client[40];
 	ifstream namefile ("RandomNames.txt");
 	if (namefile.is_open()){
-		for (int i = 0; i < 500; i++)
-		{
+		for (int i = 0; i < 500; i++){
 			namefile.getline(client,sizeof(client));
 			ClientName[i]=new char[strlen(client)+1];
 			strcpy(ClientName[i],client);
@@ -158,10 +158,10 @@ int main(int argc, char* argv[]){
 	//fill the clients vector
 	ifstream clientsfile("clients.bin", ifstream::binary);
 	Clients clientes;
+	vector<char*> llaves_cli;
 	if (clientsfile.fail()){
 		ofstream indice_clients("Ind_Clients.bin",ofstream::binary);
 		ofstream clientesfile("clients.bin", ofstream::binary);
-		vector<char*> llaves_cli;
 		for (int i = 0; i < 500; i++){
 			Clients client;
 			strcpy(client.ID,ClientId[i]);
@@ -171,23 +171,36 @@ int main(int argc, char* argv[]){
 			client.gender=Gender();
 			client.posicion=-1;
 			client.available=false;
-			llaves_cli.push_back(client.ID);
+			llaves_cli.push_back(ClientId[i]);
+			cout<<llaves_cli.at(llaves_cli.size()-1)<<"<--"<<endl;
+			cout<<atol(llaves_cli.at(llaves_cli.size() - 1))<<endl;
 			clientesfile.write(reinterpret_cast<const char*>(&client), sizeof(client));
 		}
 		Organize(llaves_cli);
-			for (int i = 0; i < llaves_cli.size(); ++i){
-				Indice ind;
-				ind.RRN = i+1;
-				strcpy(ind.Llave,llaves_cli.at(i));
-				indice_clients.write(reinterpret_cast<const char*>(&ind), sizeof(ind));
-			}
+		//cout<<llaves_cli.size()<<"<-----SIZE"<<endl;
+		for (int i = 0; i < llaves_cli.size(); i++){
+			Indice ind;
+			ind.RRN = i+1;
+			//cout<<"LLAVE"<<i<<"  "<<llaves_cli.at(i)<<endl;
+			ind.Llave = atol(llaves_cli.at(i));
+			//cout<<i<<"<<"<<ind.Llave<<endl;
+			indice_clients.write(reinterpret_cast<const char*>(&ind), sizeof(ind));
+		}
 		cout<<"Clients file has been written :)"<<endl;
 		clientesfile.close();
 	}
+	//int contad = 0;
 	while(clientsfile.read(reinterpret_cast<char*>(&clientes), sizeof(clientes))){
 		clients.push_back(clientes);
 	}//fin while
 	clientsfile.close();
+	/*Indice indicee;
+	ifstream ind23("Ind_Clients.bin", ifstream::binary);
+	while(ind23.read(reinterpret_cast<char*>(&indicee), sizeof(indicee))){
+		cout<<contad;
+		cout<<"LLAVE "<<indicee.Llave<<endl;
+		contad++;
+	}*/
 	//fill the Cities 
 	//ifstream file("cities.bin", ifstream::binary);
 	Cities ciudades;
@@ -201,7 +214,7 @@ int main(int argc, char* argv[]){
 		strcpy(city.CityName,CityName[i]);
 		city.posicion=-1;
 		city.available=false;
-		llaves_city.push_back(city.IDCity);
+		llaves_city.push_back(CitiesID[i]);
 		citiesfile.write(reinterpret_cast<const char*>(&city), sizeof(city));
 	}
 	cout<<"Cities file has been written :)"<<endl;
@@ -210,7 +223,7 @@ int main(int argc, char* argv[]){
 	for (int i = 0; i < llaves_city.size(); i++){
 		Indice ind_city;
 		ind_city.RRN = i + 1;
-		strcpy(ind_city.Llave, llaves_city.at(i));
+		ind_city.Llave = atol(llaves_city.at(i));
 		indice_city.write(reinterpret_cast<const char*>(&ind_city), sizeof(ind_city));
 	}
 	indice_city.close();
@@ -232,7 +245,7 @@ int main(int argc, char* argv[]){
 			Lines line;
 			strcpy(line.number,PhoneNumbers[j]);
 			strcpy(line.ID,ClientId[j]);
-			llaves_lines.push_back(line.ID);
+			llaves_lines.push_back(PhoneNumbers[j]);
 			line.posicion=-1;
 			line.available=false;
 			lines.push_back(line);
@@ -242,7 +255,7 @@ int main(int argc, char* argv[]){
 		for (int i = 0; i < llaves_lines.size(); ++i){
 			Indice ind;
 			ind.RRN = i+1;
-			strcpy(ind.Llave,llaves_lines.at(i));
+			ind.Llave = atol(llaves_lines.at(i));
 			indice_line.write(reinterpret_cast<const char*>(&ind), sizeof(ind));
 		}
 		cout<<"2"<<endl;
@@ -263,7 +276,6 @@ int main(int argc, char* argv[]){
 		calls.push_back(llamadas(lines));
 	}
 	Ordenar(calls);
-	cout<<"5"<<endl;
 	for (int i = 0; i < calls.size(); i++){
 		Calls llam = calls.at(i);
 		file_calls.write(reinterpret_cast<const char*>(&llam), sizeof(llam));
@@ -275,15 +287,14 @@ int main(int argc, char* argv[]){
 		}
 		file_calls1.close();
 	}*/
-	//Ordenar(calls);
+	//Ordenar(calls);	
 	return 0;
 }
 
 void Organize(vector<char*> &list){
-	cout<<"4"<<endl;
 	for (int i = 0; i < list.size() - 1; i++){
 		for (int j = i + 1; j < list.size(); j++){
-			if(atoi(list.at(i)) > atoi(list.at(j))){
+			if(atol(list.at(i)) > atol(list.at(j))){
 				swap(list.at(i),list.at(j));
 			}
 		}
@@ -445,3 +456,26 @@ int* toInt(char* string){
 	return retval;
 }
 
+int atois(char a){
+	if( a == '1'){
+		return 1;
+	}else if( a == '2'){
+		return 2;
+	}else if( a == '3'){
+		return 3;
+	}else if( a == '4'){
+		return 4;
+	}else if( a == '5'){
+		return 5;
+	}else if( a == '6'){
+		return 6;
+	}else if( a == '7'){
+		return 7;
+	}else if( a == '8'){
+		return 8;
+	}else if( a == '9'){
+		return 9;
+	}else{
+		return 0;
+	}
+}
