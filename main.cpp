@@ -30,12 +30,12 @@ struct Clients{
 //estructura para el indice de clientes y el de lineas
 struct Indice/*_Cli_Lin*/{
 	unsigned int RRN;
-	unsigned long Llave;
+	char Llave[14];
 };
 
 struct Indice_City{
 	unsigned int RRN;
-	char Llave[14];
+	char Llave[5];
 };
 //struct for lines per client
 struct Lines{
@@ -59,6 +59,11 @@ struct Calls{
 	char end[15];
 	char to[11];// numero a quien se esta llamando
 	double tarifa; 
+};
+
+struct Header{
+	int avail;
+	int size;
 };
 
 Calls llamadas(vector<Lines>);
@@ -162,6 +167,10 @@ int main(int argc, char* argv[]){
 	if (clientsfile.fail()){
 		ofstream indice_clients("Ind_Clients.bin",ofstream::binary);
 		ofstream clientesfile("clients.bin", ofstream::binary);
+		Header head_client;
+		head_client.size = 68;
+		head_client.avail = -1;
+		clientesfile.write(reinterpret_cast<const char*>(&head_client), sizeof(head_client));
 		for (int i = 0; i < 500; i++){
 			Clients client;
 			strcpy(client.ID,ClientId[i]);
@@ -172,7 +181,7 @@ int main(int argc, char* argv[]){
 			client.posicion=-1;
 			client.available=false;
 			llaves_cli.push_back(ClientId[i]);
-			cout<<llaves_cli.at(llaves_cli.size()-1)<<"<--"<<endl;
+			//cout<<llaves_cli.at(llaves_cli.size()-1)<<"<--"<<endl;
 			cout<<atol(llaves_cli.at(llaves_cli.size() - 1))<<endl;
 			clientesfile.write(reinterpret_cast<const char*>(&client), sizeof(client));
 		}
@@ -182,32 +191,39 @@ int main(int argc, char* argv[]){
 			Indice ind;
 			ind.RRN = i+1;
 			//cout<<"LLAVE"<<i<<"  "<<llaves_cli.at(i)<<endl;
-			ind.Llave = atol(llaves_cli.at(i));
+			strcpy(ind.Llave,llaves_cli.at(i));
 			//cout<<i<<"<<"<<ind.Llave<<endl;
 			indice_clients.write(reinterpret_cast<const char*>(&ind), sizeof(ind));
 		}
 		cout<<"Clients file has been written :)"<<endl;
 		clientesfile.close();
 	}
-	//int contad = 0;
-	while(clientsfile.read(reinterpret_cast<char*>(&clientes), sizeof(clientes))){
+	//ifstream clits("clients.bin",ifstream::binary);
+		Header h;
+		clientsfile.read(reinterpret_cast<char*>(&h), sizeof(h));
+		cout<<"SIZE  "<<h.size<<"  AVAIL  "<<h.avail<<endl;
+		/*Clients c;
+		while(clientsfile.read(reinterpret_cast<char*>(&c), sizeof(c))){
+			cout<<"CLIT  ---"<<c.ID<<endl;
+		}
+	*/
+	
+	/*while(clientsfile.read(reinterpret_cast<char*>(&clientes), sizeof(clientes))){
 		clients.push_back(clientes);
 	}//fin while
 	clientsfile.close();
-	/*Indice indicee;
-	ifstream ind23("Ind_Clients.bin", ifstream::binary);
-	while(ind23.read(reinterpret_cast<char*>(&indicee), sizeof(indicee))){
-		cout<<contad;
-		cout<<"LLAVE "<<indicee.Llave<<endl;
-		contad++;
-	}*/
+	*/
 	//fill the Cities 
-	//ifstream file("cities.bin", ifstream::binary);
+	ifstream file("indice_city.bin", ifstream::binary);
 	Cities ciudades;
 	//if (file.fail()){
 	ofstream citiesfile ("cities.bin", ofstream::binary);
 	ofstream indice_city("indice_city.bin", ofstream::binary);
 	vector<char*> llaves_city;
+	Header head_city;
+	head_city.size = 49;
+	head_city.avail = -1;
+	citiesfile.write(reinterpret_cast<const char*>(&head_city), sizeof(head_city));
 	for (int i = 0; i < 30; i++){
 		Cities city;
 		strcpy(city.IDCity,CitiesID[i]);
@@ -217,21 +233,24 @@ int main(int argc, char* argv[]){
 		llaves_city.push_back(CitiesID[i]);
 		citiesfile.write(reinterpret_cast<const char*>(&city), sizeof(city));
 	}
-	cout<<"Cities file has been written :)"<<endl;
+	//cout<<"Cities file has been written :)"<<endl;
 	citiesfile.close();
 	Organize(llaves_city);
 	for (int i = 0; i < llaves_city.size(); i++){
-		Indice ind_city;
+		Indice_City ind_city;
 		ind_city.RRN = i + 1;
-		ind_city.Llave = atol(llaves_city.at(i));
+		strcpy(ind_city.Llave,llaves_city.at(i));
 		indice_city.write(reinterpret_cast<const char*>(&ind_city), sizeof(ind_city));
 	}
 	indice_city.close();
 	//}
-	/*while(file.read(reinterpret_cast<char*>(&ciudades), sizeof(ciudades))){
-		cities.push_back(ciudades);
-	}//fin while
-	file.close();*/
+	Indice_City cit;
+	int cont = 0;
+	/*while(file.read(reinterpret_cast<char*>(&cit), sizeof(cit))){
+		cout<<cont<<"  "<<cit.Llave<<endl;
+		cont++;
+	}//fin while*/
+	file.close();
 
 	// fill the lines
 	ifstream linesfile ("lines.bin",ifstream::binary);
@@ -240,7 +259,11 @@ int main(int argc, char* argv[]){
 		vector<char*> llaves_lines;
 		ofstream lineasfile("lines.bin", ofstream::binary);
 		ofstream indice_line("Ind_lines.bin", ofstream::binary);	
-		cout<<"1"<<endl;
+		//cout<<"1"<<endl;
+		Header head_line;
+		head_line.size = 30;
+		head_line.avail = -1;
+		lineasfile.write(reinterpret_cast<const char*>(&head_line), sizeof(head_line));
 		for (int j = 0; j < 500; j++){
 			Lines line;
 			strcpy(line.number,PhoneNumbers[j]);
@@ -255,23 +278,23 @@ int main(int argc, char* argv[]){
 		for (int i = 0; i < llaves_lines.size(); ++i){
 			Indice ind;
 			ind.RRN = i+1;
-			ind.Llave = atol(llaves_lines.at(i));
+			strcpy(ind.Llave,llaves_lines.at(i));
 			indice_line.write(reinterpret_cast<const char*>(&ind), sizeof(ind));
 		}
-		cout<<"2"<<endl;
-		cout<<"Lines file has been written :)"<<endl;
+		//cout<<"2"<<endl;
+		//cout<<"Lines file has been written :)"<<endl;
 		lineasfile.close();
 	}
 	while(linesfile.read(reinterpret_cast<char*>(&lineas), sizeof(lineas))){
 		lines.push_back(lineas);
 	}//fin while
 	linesfile.close();
-	cout<<"3"<<endl;
+	//cout<<"3"<<endl;
 	//ifstream file_calls1("calls.bin", ifstream::binary);
 	Calls llamadas_1;
 	//if(file_calls1.fail()){	
 	ofstream file_calls("calls.bin",ofstream::binary);
-	cout<<lines.size()<<endl;
+	//cout<<lines.size()<<endl;
 	for (int i = 0; i < 500; i++){
 		calls.push_back(llamadas(lines));
 	}
