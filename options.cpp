@@ -50,6 +50,7 @@ struct charast{
 };
 
 int binary_insertion( vector<long>, long);
+int binary_search(vector<long>, long);
 
 int main (int argc, char* argv[]){	
 	srand(time(0));
@@ -124,41 +125,120 @@ int main (int argc, char* argv[]){
 							Indice toinsert_cl;
 							strcpy(toinsert_cl.Llave,Indices_allcl.at(i).id);
 							toinsert_cl.RRN = i + 1;
-						//update_Ind_cli.seekp((insert_pos + 1)*18,ios::beg);
+							//update_Ind_cli.seekp((insert_pos + 1)*18,ios::beg);
 							update_Ind_cli.write(reinterpret_cast<char*>(&toinsert_cl), sizeof(toinsert_cl));
 						}
 						update_Ind_cli.close();
 					};// end case create
 					break;
 					case 2:{
-						Header head;
-						ifstream file_cli("clients.bin", ifstream::binary);
-						Clients client;
-						cout<<"List of Clients: "<<endl;
-						file_cli.read(reinterpret_cast<char*>(&head), sizeof(head));
-						cout<<"SIZE -->"<<head.size<<"AVAIL -->"<<head.avail<<endl;
-						while(file_cli.read(reinterpret_cast<char*>(&client), sizeof(client))){
-							cout<<"ID: "<<client.ID<<endl;
-							cout<<"Name: "<<client.name<<endl;
-							cout<<"Gender: "<<client.gender<<endl;
-							cout<<"CityID: "<<client.cityID<<endl;
-							//cout<<"POS -->"<<client.posicion<<endl;
-							cout<<endl;
-						}//fin while
-						file_cli.close();
+						int decision = 0;
+						cout<<"1.Show All"<<endl<<"2.Show by ID"<<endl;
+						cin>>decision;
+						if(decision == 1){
+							Header head;
+							ifstream file_cli("clients.bin", ifstream::binary);
+							Clients client;
+							cout<<"List of Clients: "<<endl;
+							file_cli.read(reinterpret_cast<char*>(&head), sizeof(head));
+							cout<<head.avail<<endl;
+							while(file_cli.read(reinterpret_cast<char*>(&client), sizeof(client))){
+								if(client.available == true){
+								cout<<"ID: "<<client.ID<<endl;
+								cout<<"Name: "<<client.name<<endl;
+								cout<<"Gender: "<<client.gender<<endl;
+								cout<<"CityID: "<<client.cityID<<endl;
+								cout<<"POS -->"<<client.posicion<<endl;
+								}
+							}//fin while
+							file_cli.close();
+						}else{
+							char id_toseek[14];
+							cout<<"ID to seek >>";
+							cin>>id_toseek;
+							ifstream llaves_cli("Ind_Clients.bin",ifstream::binary);
+							vector<long> llaves_clientes;
+							vector<int> rrn_clientes;
+							Indice ind_cli1;
+							while(llaves_cli.read(reinterpret_cast<char*>(&ind_cli1),sizeof(ind_cli1))){
+								llaves_clientes.push_back(atol(ind_cli1.Llave));
+								rrn_clientes.push_back(ind_cli1.RRN);
+							}
+							llaves_cli.close();
+							int position = binary_search(llaves_clientes, atol(id_toseek));
+							int pos = rrn_clientes.at(position);
+							if(pos == -1){
+								cout<<"No match"<<endl;
+							}else{
+								//cout<<"POS-->"<<pos<<endl;
+								ifstream archivo_clientes("clients.bin", ifstream::binary);
+								Header client_head;
+								archivo_clientes.read(reinterpret_cast<char*>(&client_head),sizeof(client_head));
+								//cout<<"SIZE-->"<<client_head.size<<endl;
+								archivo_clientes.seekg(((pos-1)*client_head.size)+8, archivo_clientes.beg);
+								//cout<<"SIZE-->"<<archivo_clientes.tellg()<<endl;
+								Clients client_toprint;
+								archivo_clientes.read(reinterpret_cast<char*>(&client_toprint),sizeof(client_toprint));
+								if(client_toprint.available != true){
+									cout<<"ID: "<<client_toprint.ID<<endl;
+									cout<<"Name: "<<client_toprint.name<<endl;
+									cout<<"Gender: "<<client_toprint.gender<<endl;
+									cout<<"CityID: "<<client_toprint.cityID<<endl;
+									cout<<endl;
+								}else{
+									cout<<"No Match"<<endl;
+								}
+								archivo_clientes.close();
+							}
+						}
 						//break;
 					};// end case read
 					break;
-					case 3:{
-						//break;
+					case 4:{
+						cout<<"The FUCK?"<<endl;
 					};// end case update
 					break;
-					case 4:{
-						//break;
+					case 3:{
+						char id_toseek[14];
+						cout<<"ID to seek >>";
+						cin>>id_toseek;
+						ifstream llaves_cli("Ind_Clients.bin",ifstream::binary);
+						vector<long> llaves_clientes;
+						vector<int> rrn_clientes;
+						Indice ind_cli1;
+						while(llaves_cli.read(reinterpret_cast<char*>(&ind_cli1),sizeof(ind_cli1))){
+							llaves_clientes.push_back(atol(ind_cli1.Llave));
+							rrn_clientes.push_back(ind_cli1.RRN);
+						}
+						llaves_cli.close();
+						int position = binary_search(llaves_clientes, atol(id_toseek));
+						int pos = rrn_clientes.at(position);
+						if(pos == -1){
+							cout<<"No match"<<endl;
+						}else{
+							cout<<"POS-->"<<pos<<endl;
+							ifstream archivo_clientes("clients.bin", ifstream::binary);
+							Header client_head;
+							archivo_clientes.read(reinterpret_cast<char*>(&client_head),sizeof(client_head));
+							cout<<"SIZE-->"<<client_head.size<<endl;
+							archivo_clientes.seekg(((pos-1)*client_head.size)+8, archivo_clientes.beg);
+							cout<<"SIZE-->"<<archivo_clientes.tellg()<<endl;
+							Clients client_toprint;
+							archivo_clientes.read(reinterpret_cast<char*>(&client_toprint),sizeof(client_toprint));
+							cout<<client_toprint.posicion<<endl;
+							archivo_clientes.close();
+							ofstream archivo_cli_mod("clients.bin",ofstream::binary);
+							client_head.avail = (pos-1);
+							client_toprint.available = true;
+							client_toprint.posicion = -1;
+							archivo_cli_mod.write(reinterpret_cast<char*>(&client_head),sizeof(client_head));
+							archivo_cli_mod.seekp(((pos-1)*client_head.size)+8, archivo_cli_mod.beg);
+							archivo_cli_mod.write(reinterpret_cast<char*>(&client_toprint),sizeof(client_toprint));
+							archivo_cli_mod.close();
+						}
 					};//end case delete 
-				
+					break;
 				}//fin swwitch
-				//break;
 			};//fin case clients
 			break;
 			case 2:{
@@ -232,7 +312,7 @@ int main (int argc, char* argv[]){
 				};
 			};// fin case cities
 		};
-	}while(opcion < 4);
+	}while(opcion < 5);
 	return 0;
 }// end main
 
@@ -286,4 +366,22 @@ int binary_insertion( vector<long> list, long element){
 			return min;
 		}
 	}
+}
+
+int binary_search(vector<long> list, long element){
+	int min = 0; 
+	int max = list.size() - 1;
+	while(min<=max){
+		int half = (max+min)/2;
+		if(list.at(half) == element){
+			cout<<list.at(half)<<endl;
+			return half;
+		}
+		if(list.at(half) < element){
+			min = half + 1;
+		}else{
+			max = half - 1;
+		}
+	}
+	return -1;
 }

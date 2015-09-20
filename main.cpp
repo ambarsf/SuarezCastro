@@ -70,10 +70,11 @@ Calls llamadas(vector<Lines>);
 void Ordenar(vector<Calls>&);
 void Ordenar2(vector<Calls>&,int,int,int);
 double Tarifa(int*,int*);
-void Organize(vector<char*>&);
+void Organize(vector<Indice>&);
 int* toInt(char*);
 char* Solucion(char*);
 int atois(char);
+void Organize_cit(vector<Indice_City>&);
 
 int main(int argc, char* argv[]){
 	vector<Calls> calls;
@@ -168,9 +169,10 @@ int main(int argc, char* argv[]){
 		ofstream indice_clients("Ind_Clients.bin",ofstream::binary);
 		ofstream clientesfile("clients.bin", ofstream::binary);
 		Header head_client;
-		head_client.size = 64;
+		head_client.size = 68;
 		head_client.avail = -1;
 		clientesfile.write(reinterpret_cast<const char*>(&head_client), sizeof(head_client));
+		vector<Indice> ind_temp;
 		for (int i = 0; i < 500; i++){
 			Clients client;
 			strcpy(client.ID,ClientId[i]);
@@ -180,20 +182,21 @@ int main(int argc, char* argv[]){
 			client.gender=Gender();
 			client.posicion=-4;
 			client.available=false;
-			llaves_cli.push_back(ClientId[i]);
+			Indice tmp_ind;
+			strcpy(tmp_ind.Llave,ClientId[i]);
+			tmp_ind.RRN = i+1;
+			ind_temp.push_back(tmp_ind);
+			//llaves_cli.push_back(ClientId[i]);
 			//cout<<llaves_cli.at(llaves_cli.size()-1)<<"<--"<<endl;
 			//cout<<atol(llaves_cli.at(llaves_cli.size() - 1))<<endl;
 			clientesfile.write(reinterpret_cast<const char*>(&client), sizeof(client));
 		}
-		Organize(llaves_cli);
+		Organize(ind_temp);
 		//cout<<llaves_cli.size()<<"<-----SIZE"<<endl;
-		for (int i = 0; i < llaves_cli.size(); i++){
-			Indice ind;
-			ind.RRN = i+1;
-			cout<<"LLAVE"<<i<<"  "<<llaves_cli.at(i)<<endl;
-			strcpy(ind.Llave,llaves_cli.at(i));
-			cout<<i<<"<<"<<ind.Llave<<endl;
-			indice_clients.write(reinterpret_cast<char*>(&ind), sizeof(ind));
+		for (int i = 0; i < ind_temp.size(); i++){
+			Indice ind2;
+			ind2 = ind_temp.at(i);
+			indice_clients.write(reinterpret_cast<char*>(&ind2), sizeof(ind2));
 		}
 		indice_clients.close();
 		cout<<"Clients file has been written :)"<<endl;
@@ -214,56 +217,55 @@ int main(int argc, char* argv[]){
 	//if (file.fail()){
 	ofstream citiesfile ("cities.bin", ofstream::binary);
 	ofstream indice_city("indice_city.bin", ofstream::binary);
-	vector<char*> llaves_city;
+	vector<Indice_City> llaves_city;
 	Header head_city;
-	head_city.size = 49;
+	head_city.size = 53;
 	head_city.avail = -1;
 	citiesfile.write(reinterpret_cast<const char*>(&head_city), sizeof(head_city));
 	for (int i = 0; i < 30; i++){
 		Cities city;
 		strcpy(city.IDCity,CitiesID[i]);
 		strcpy(city.CityName,CityName[i]);
+		Indice_City ind_cityt;
+		strcpy(ind_cityt.Llave,CitiesID[i]);
+		ind_cityt.RRN = i+1;
 		city.posicion=-4;
 		city.available=false;
-		llaves_city.push_back(CitiesID[i]);
+		llaves_city.push_back(ind_cityt);
 		citiesfile.write(reinterpret_cast<const char*>(&city), sizeof(city));
 	}
 	//cout<<"Cities file has been written :)"<<endl;
 	citiesfile.close();
-	Organize(llaves_city);
+	Organize_cit(llaves_city);
 	for (int i = 0; i < llaves_city.size(); i++){
 		Indice_City ind_city;
-		ind_city.RRN = i + 1;
-		strcpy(ind_city.Llave,llaves_city.at(i));
+		ind_city = llaves_city.at(i);
 		indice_city.write(reinterpret_cast<const char*>(&ind_city), sizeof(ind_city));
 	}
 	indice_city.close();
 	//}
-	Indice_City cit;
-	int cont = 0;
-	/*while(file.read(reinterpret_cast<char*>(&cit), sizeof(cit))){
-		cout<<cont<<"  "<<cit.Llave<<endl;
-		cont++;
-	}//fin while*/
 	file.close();
 
 	// fill the lines
 	ifstream linesfile ("lines.bin",ifstream::binary);
 	Lines lineas;
 	if(linesfile.fail()){
-		vector<char*> llaves_lines;
+		vector<Indice> llaves_lines;
 		ofstream lineasfile("lines.bin", ofstream::binary);
 		ofstream indice_line("Ind_lines.bin", ofstream::binary);	
 		//cout<<"1"<<endl;
 		Header head_line;
-		head_line.size = 30;
+		head_line.size = 34;
 		head_line.avail = -1;
 		lineasfile.write(reinterpret_cast<const char*>(&head_line), sizeof(head_line));
 		for (int j = 0; j < 500; j++){
 			Lines line;
 			strcpy(line.number,PhoneNumbers[j]);
 			strcpy(line.ID,ClientId[j]);
-			llaves_lines.push_back(PhoneNumbers[j]);
+			Indice ind_line;
+			strcpy(ind_line.Llave,PhoneNumbers[j]);
+			ind_line.RRN = j+1;
+			llaves_lines.push_back(ind_line);
 			line.posicion=-4;
 			line.available=false;
 			lines.push_back(line);
@@ -272,8 +274,7 @@ int main(int argc, char* argv[]){
 		Organize(llaves_lines);
 		for (int i = 0; i < llaves_lines.size(); ++i){
 			Indice ind;
-			ind.RRN = i+1;
-			strcpy(ind.Llave,llaves_lines.at(i));
+			ind = llaves_lines.at(i);
 			indice_line.write(reinterpret_cast<const char*>(&ind), sizeof(ind));
 		}
 		//cout<<"2"<<endl;
@@ -309,10 +310,20 @@ int main(int argc, char* argv[]){
 	return 0;
 }
 
-void Organize(vector<char*> &list){
+void Organize(vector<Indice> &list){
 	for (int i = 0; i < list.size() - 1; i++){
 		for (int j = i + 1; j < list.size(); j++){
-			if(atol(list.at(i)) > atol(list.at(j))){
+			if(atol(list.at(i).Llave) > atol(list.at(j).Llave)){
+				swap(list.at(i),list.at(j));
+			}
+		}
+	}	
+}
+
+void Organize_cit(vector<Indice_City> &list){
+	for (int i = 0; i < list.size() - 1; i++){
+		for (int j = i + 1; j < list.size(); j++){
+			if(atol(list.at(i).Llave) > atol(list.at(j).Llave)){
 				swap(list.at(i),list.at(j));
 			}
 		}
