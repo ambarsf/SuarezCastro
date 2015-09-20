@@ -194,10 +194,10 @@ int main (int argc, char* argv[]){
 						//break;
 					};// end case read
 					break;
-					case 4:{
+					/*case 4:{
 						cout<<"The FUCK?"<<endl;
 					};// end case update
-					break;
+					break;*/
 					case 3:{
 						char id_toseek[14];
 						cout<<"ID to seek >>";
@@ -216,16 +216,16 @@ int main (int argc, char* argv[]){
 						if(pos == -1){
 							cout<<"No match"<<endl;
 						}else{
-							cout<<"POS-->"<<pos<<endl;
+							//cout<<"POS-->"<<pos<<endl;
 							ifstream archivo_clientes("clients.bin", ifstream::binary);
 							Header client_head;
 							archivo_clientes.read(reinterpret_cast<char*>(&client_head),sizeof(client_head));
-							cout<<"SIZE-->"<<client_head.size<<endl;
+							//cout<<"SIZE-->"<<client_head.size<<endl;
 							archivo_clientes.seekg(((pos-1)*client_head.size)+8, archivo_clientes.beg);
-							cout<<"SIZE-->"<<archivo_clientes.tellg()<<endl;
+							//cout<<"SIZE-->"<<archivo_clientes.tellg()<<endl;
 							Clients client_toprint;
 							archivo_clientes.read(reinterpret_cast<char*>(&client_toprint),sizeof(client_toprint));
-							cout<<client_toprint.posicion<<endl;
+							//cout<<client_toprint.posicion<<endl;
 							archivo_clientes.close();
 							ofstream archivo_cli_mod("clients.bin",ofstream::binary);
 							client_head.avail = (pos-1);
@@ -237,6 +237,54 @@ int main (int argc, char* argv[]){
 							archivo_cli_mod.close();
 						}
 					};//end case delete 
+					break;
+					case 4:{
+						char id_toseek[14];
+						cout<<"ID to seek >>";
+						cin>>id_toseek;
+						ifstream llaves_cli("Ind_Clients.bin",ifstream::binary);
+						vector<long> llaves_clientes;
+						vector<int> rrn_clientes;
+						Indice ind_cli1;
+						while(llaves_cli.read(reinterpret_cast<char*>(&ind_cli1),sizeof(ind_cli1))){
+							llaves_clientes.push_back(atol(ind_cli1.Llave));
+							rrn_clientes.push_back(ind_cli1.RRN);
+						}
+						llaves_cli.close();
+						int position = binary_search(llaves_clientes, atol(id_toseek));
+						int pos = rrn_clientes.at(position);
+						if(pos == -1){
+							cout<<"No match"<<endl;
+						}else{
+							//cout<<"POS-->"<<pos<<endl;
+							ifstream archivo_clientes("clients.bin", ifstream::binary);
+							Header client_head;
+							archivo_clientes.read(reinterpret_cast<char*>(&client_head),sizeof(client_head));
+							//cout<<"SIZE-->"<<client_head.size<<endl;
+							archivo_clientes.seekg(((pos-1)*client_head.size)+8, archivo_clientes.beg);
+							//cout<<"SIZE-->"<<archivo_clientes.tellg()<<endl;
+							Clients client_toprint;
+							archivo_clientes.read(reinterpret_cast<char*>(&client_toprint),sizeof(client_toprint));
+							//cout<<client_toprint.posicion<<endl;
+							archivo_clientes.close();
+							ofstream archivo_cli_mod("clients.bin",ofstream::binary);
+							cout<<"ID: "<<client_toprint.ID<<endl;
+							cout<<"Name: "<<client_toprint.name<<endl;
+							cout<<"Gender: "<<client_toprint.gender<<endl;
+							cout<<"CityID: "<<client_toprint.cityID<<endl;
+							char[40] client_newname;
+							cout<<"New Name >>";
+							cin>>client_newname;
+							cout<<endl;
+							char client_newgender;
+							cout<<"New Gender >>";
+							cin>>client_newgender;
+							//archivo_cli_mod.write(reinterpret_cast<char*>(&client_head),sizeof(client_head));
+							archivo_cli_mod.seekp(((pos-1)*client_head.size)+8, archivo_cli_mod.beg);
+							archivo_cli_mod.write(reinterpret_cast<char*>(&client_toprint),sizeof(client_toprint));
+							archivo_cli_mod.close();
+						}
+					};
 					break;
 				}//fin swwitch
 			};//fin case clients
@@ -312,7 +360,7 @@ int main (int argc, char* argv[]){
 				};
 			};// fin case cities
 		};
-	}while(opcion < 5);
+	}while(opcion < 4);
 	return 0;
 }// end main
 
@@ -343,7 +391,7 @@ int menu(){
 		cout<<"Write your option: ";
 		cin>>options;
 		cout<<endl;
-	}while(options>3||options<1);
+	}while(options>4||options<1);
 	return options;
 }
 
