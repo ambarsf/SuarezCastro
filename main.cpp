@@ -168,7 +168,7 @@ int main(int argc, char* argv[]){
 		ofstream indice_clients("Ind_Clients.bin",ofstream::binary);
 		ofstream clientesfile("clients.bin", ofstream::binary);
 		Header head_client;
-		head_client.size = 68;
+		head_client.size = 64;
 		head_client.avail = -1;
 		clientesfile.write(reinterpret_cast<const char*>(&head_client), sizeof(head_client));
 		for (int i = 0; i < 500; i++){
@@ -178,11 +178,11 @@ int main(int argc, char* argv[]){
 			int random=rand()%30;
 			strcpy(client.cityID,CitiesID[random]);
 			client.gender=Gender();
-			client.posicion=-1;
+			client.posicion=-4;
 			client.available=false;
 			llaves_cli.push_back(ClientId[i]);
 			//cout<<llaves_cli.at(llaves_cli.size()-1)<<"<--"<<endl;
-			cout<<atol(llaves_cli.at(llaves_cli.size() - 1))<<endl;
+			//cout<<atol(llaves_cli.at(llaves_cli.size() - 1))<<endl;
 			clientesfile.write(reinterpret_cast<const char*>(&client), sizeof(client));
 		}
 		Organize(llaves_cli);
@@ -190,29 +190,24 @@ int main(int argc, char* argv[]){
 		for (int i = 0; i < llaves_cli.size(); i++){
 			Indice ind;
 			ind.RRN = i+1;
-			//cout<<"LLAVE"<<i<<"  "<<llaves_cli.at(i)<<endl;
+			cout<<"LLAVE"<<i<<"  "<<llaves_cli.at(i)<<endl;
 			strcpy(ind.Llave,llaves_cli.at(i));
-			//cout<<i<<"<<"<<ind.Llave<<endl;
-			indice_clients.write(reinterpret_cast<const char*>(&ind), sizeof(ind));
+			cout<<i<<"<<"<<ind.Llave<<endl;
+			indice_clients.write(reinterpret_cast<char*>(&ind), sizeof(ind));
 		}
+		indice_clients.close();
 		cout<<"Clients file has been written :)"<<endl;
 		clientesfile.close();
 	}
-	//ifstream clits("clients.bin",ifstream::binary);
-		Header h;
-		clientsfile.read(reinterpret_cast<char*>(&h), sizeof(h));
-		cout<<"SIZE  "<<h.size<<"  AVAIL  "<<h.avail<<endl;
-		/*Clients c;
-		while(clientsfile.read(reinterpret_cast<char*>(&c), sizeof(c))){
-			cout<<"CLIT  ---"<<c.ID<<endl;
-		}
-	*/
+	/*Clients cl;
+	Header sd;
+	clientsfile.read(reinterpret_cast<char*>(&sd), sizeof(sd));
+	cout<<sd.size<<endl;
+	while(clientsfile.read(reinterpret_cast<char*>(&cl), sizeof(cl))){
+		cout<<"ID --->"<<cl.ID<<endl;
+	}
+	clientsfile.close();*/
 	
-	/*while(clientsfile.read(reinterpret_cast<char*>(&clientes), sizeof(clientes))){
-		clients.push_back(clientes);
-	}//fin while
-	clientsfile.close();
-	*/
 	//fill the Cities 
 	ifstream file("indice_city.bin", ifstream::binary);
 	Cities ciudades;
@@ -228,7 +223,7 @@ int main(int argc, char* argv[]){
 		Cities city;
 		strcpy(city.IDCity,CitiesID[i]);
 		strcpy(city.CityName,CityName[i]);
-		city.posicion=-1;
+		city.posicion=-4;
 		city.available=false;
 		llaves_city.push_back(CitiesID[i]);
 		citiesfile.write(reinterpret_cast<const char*>(&city), sizeof(city));
@@ -269,7 +264,7 @@ int main(int argc, char* argv[]){
 			strcpy(line.number,PhoneNumbers[j]);
 			strcpy(line.ID,ClientId[j]);
 			llaves_lines.push_back(PhoneNumbers[j]);
-			line.posicion=-1;
+			line.posicion=-4;
 			line.available=false;
 			lines.push_back(line);
 			lineasfile.write(reinterpret_cast<const char*>(&line), sizeof(line));
