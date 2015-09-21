@@ -54,8 +54,13 @@ int binary_search(vector<long>, long);
 
 int main (int argc, char* argv[]){	
 	srand(time(0));
-	int cont_ID = 500;
+	int cont_ID;
 	int opcion;
+	ifstream filetmp("clients.bin",ifstream::binary);
+	filetmp.seekg(0,filetmp.end);
+	cont_ID = filetmp.tellg();
+	cont_ID = ((cont_ID-8)/68)+1;
+	filetmp.close();
 	do{
 		opcion = opciones();
 		switch(opcion){
@@ -67,6 +72,7 @@ int main (int argc, char* argv[]){
 				int option=menu();
 				switch (option){
 					case 1:{
+						cout<<"CONT_ID--->"<<cont_ID<<endl;
 						ofstream file_cli_create("clients.bin",ios::app|ofstream::binary);
 						Clients append_client;
 						char tempid[14];
@@ -97,38 +103,51 @@ int main (int argc, char* argv[]){
 						strcpy(append_client.cityID,CitiesID1[temppos]);
 						append_client.posicion = -4; 
 						file_cli_create.write(reinterpret_cast<char*>(&append_client), sizeof(append_client));
+						file_cli_create.close();
 						cout<<"DONE"<<endl;
 						ifstream ind_cli("Ind_Clients.bin", ifstream::binary);
 						Indice ind1;
 						vector<long> Indices_cl;
-						vector<charast> Indices_allcl;
+						//vector<charast> Indices_allcl;
+						vector<Indice> Ind_cl_toadd;
 						while(ind_cli.read(reinterpret_cast<char*>(&ind1), sizeof(ind1))){
-							cout<<ind1.RRN<<"   "<<ind1.Llave<<endl;
+							//cout<<ind1.RRN<<"   "<<ind1.Llave<<endl;
 							Indices_cl.push_back(atol(ind1.Llave));
-							charast tmp;
-							strcpy(tmp.id,ind1.Llave);
-							Indices_allcl.push_back(tmp);
+							//charast tmp;
+							//strcpy(tmp.id,ind1.Llave);
+							//Indices_allcl.push_back(tmp);
+							Ind_cl_toadd.push_back(ind1);
 						}
-						/*for (int i = 0; i < Indices_cl.size(); i++){
-						cout<<Indices_cl.at(i)<<endl;
-						}*/
+						for (int i = 0; i < Ind_cl_toadd.size(); i++){
+							cout<<Ind_cl_toadd.at(i).Llave<<endl;
+						}
 						ind_cli.close();
 						//cout<<"HOY SI DONE"<<endl;
 						//cout<<Indices_cl.size()<<endl;
 						int insert_pos = binary_insertion(Indices_cl,Id_toadd);
 						Indices_cl.insert(Indices_cl.begin() + insert_pos, Id_toadd);
-						charast temp_charast;
-						strcpy(temp_charast.id,append_client.ID);
-						Indices_allcl.insert(Indices_allcl.begin() + insert_pos, temp_charast);
+						//charast temp_charast;
+						//strcpy(temp_charast.id,append_client.ID);
+						//cout<<"ANTES"<<endl;
+						Indice a_agregar;
+						strcpy(a_agregar.Llave,append_client.ID);
+						a_agregar.RRN = cont_ID+1;
+						Ind_cl_toadd.insert(Ind_cl_toadd.begin() + insert_pos, a_agregar);
+						//cout<<"DESPUES"<<endl;
 						ofstream update_Ind_cli("Ind_Clients.bin", ofstream::binary);
-						for (int i = 0; i < Indices_allcl.size(); i++){
-							Indice toinsert_cl;
-							strcpy(toinsert_cl.Llave,Indices_allcl.at(i).id);
-							toinsert_cl.RRN = i + 1;
-							//update_Ind_cli.seekp((insert_pos + 1)*18,ios::beg);
-							update_Ind_cli.write(reinterpret_cast<char*>(&toinsert_cl), sizeof(toinsert_cl));
+						//Ind_cl_toadd.push_back(a_agregar);
+						//cout<<Indices_allcl.size()<<"-------"<<Ind_cl_toadd.size(); 
+						for (int i = 0; i < Ind_cl_toadd.size(); i++){
+							//if(atol(Ind_cl_toadd.at(i).Llave) == atol(Indices_allcl.at(i).id)){
+								Indice Ind;
+								strcpy(Ind.Llave,Ind_cl_toadd.at(i).Llave);
+								Ind.RRN = Ind_cl_toadd.at(i).RRN;
+								//cout<<"RRN-->"<<Ind.RRN<<endl;
+								update_Ind_cli.write(reinterpret_cast<char*>(&Ind), sizeof(Ind));	
+							//}
 						}
 						update_Ind_cli.close();
+
 					};// end case create
 					break;
 					case 2:{
@@ -142,6 +161,7 @@ int main (int argc, char* argv[]){
 							cout<<"List of Clients: "<<endl;
 							file_cli.read(reinterpret_cast<char*>(&head), sizeof(head));
 							cout<<head.avail<<endl;
+							int cont = 0;
 							while(file_cli.read(reinterpret_cast<char*>(&client), sizeof(client))){
 								if(client.available == true){
 								cout<<"ID: "<<client.ID<<endl;
@@ -150,7 +170,9 @@ int main (int argc, char* argv[]){
 								cout<<"CityID: "<<client.cityID<<endl;
 								cout<<"POS -->"<<client.posicion<<endl;
 								}
+								cont++;
 							}//fin while
+
 							file_cli.close();
 						}else{
 							char id_toseek[14];
@@ -167,6 +189,7 @@ int main (int argc, char* argv[]){
 							llaves_cli.close();
 							int position = binary_search(llaves_clientes, atol(id_toseek));
 							int pos = rrn_clientes.at(position);
+							cout<<"POS"<<pos<<endl;
 							if(pos == -1){
 								cout<<"No match"<<endl;
 							}else{
@@ -178,6 +201,7 @@ int main (int argc, char* argv[]){
 								archivo_clientes.seekg(((pos-1)*client_head.size)+8, archivo_clientes.beg);
 								//cout<<"SIZE-->"<<archivo_clientes.tellg()<<endl;
 								Clients client_toprint;
+								cout<<"AQUI--->"<<client_head.avail<<endl;
 								archivo_clientes.read(reinterpret_cast<char*>(&client_toprint),sizeof(client_toprint));
 								if(client_toprint.available != true){
 									cout<<"ID: "<<client_toprint.ID<<endl;
@@ -213,29 +237,56 @@ int main (int argc, char* argv[]){
 						llaves_cli.close();
 						int position = binary_search(llaves_clientes, atol(id_toseek));
 						int pos = rrn_clientes.at(position);
-						if(pos == -1){
-							cout<<"No match"<<endl;
-						}else{
-							//cout<<"POS-->"<<pos<<endl;
-							ifstream archivo_clientes("clients.bin", ifstream::binary);
-							Header client_head;
-							archivo_clientes.read(reinterpret_cast<char*>(&client_head),sizeof(client_head));
-							//cout<<"SIZE-->"<<client_head.size<<endl;
-							archivo_clientes.seekg(((pos-1)*client_head.size)+8, archivo_clientes.beg);
-							//cout<<"SIZE-->"<<archivo_clientes.tellg()<<endl;
-							Clients client_toprint;
-							archivo_clientes.read(reinterpret_cast<char*>(&client_toprint),sizeof(client_toprint));
-							//cout<<client_toprint.posicion<<endl;
+						//cout<<"POS-->"<<pos<<endl;
+						ifstream archivo_clientes("clients.bin", ifstream::binary);
+						Header client_head;
+						archivo_clientes.read(reinterpret_cast<char*>(&client_head),sizeof(client_head));
+						archivo_clientes.seekg(((pos-1)*client_head.size)+8, archivo_clientes.beg);
+						Clients client_toprint;
+						archivo_clientes.read(reinterpret_cast<char*>(&client_toprint),sizeof(client_toprint));
+						if(client_head.avail != -1){
+							int donde = client_head.avail;
+							Clients temporal;
+							int pos_anterior = 0;
+							cout<<"ANTES--->"<<donde<<endl;
+							while(donde != -1){
+								if(donde != -1){
+									pos_anterior = donde;
+								}
+								archivo_clientes.seekg((donde*client_head.size)+8,archivo_clientes.beg);
+								archivo_clientes.read(reinterpret_cast<char*>(&temporal),sizeof(temporal));
+								donde = temporal.posicion;
+								cout<<donde;
+							}
+							cout<<donde<<endl;
 							archivo_clientes.close();
-							ofstream archivo_cli_mod("clients.bin",ofstream::binary);
+							fstream upavail_cl("clients.bin",fstream::binary|ios::out|ios::in);
+							cout<<"POS.--->"<<pos_anterior<<endl;
+							temporal.posicion = (pos-1);
+							client_toprint.available = true;
+							client_toprint.posicion = -1;
+							cout<<temporal.posicion<<endl;
+							upavail_cl.seekp((pos_anterior * client_head.size)+8,upavail_cl.beg);
+							upavail_cl.write(reinterpret_cast<char*>(&temporal),sizeof(temporal));
+							upavail_cl.seekp(((pos-1)*client_head.size)+8, upavail_cl.beg);	
+							upavail_cl.write(reinterpret_cast<char*>(&client_toprint),sizeof(client_toprint));
+							upavail_cl.close();
+							//archivo_clientes.close();
+						}else{
+							archivo_clientes.close();
+							fstream archivo_cli_mod("clients.bin",fstream::binary|ios::out|ios::in);
 							client_head.avail = (pos-1);
 							client_toprint.available = true;
 							client_toprint.posicion = -1;
+							cout<<client_toprint.ID<<endl;
+							cout<<client_toprint.posicion<<endl;
 							archivo_cli_mod.write(reinterpret_cast<char*>(&client_head),sizeof(client_head));
 							archivo_cli_mod.seekp(((pos-1)*client_head.size)+8, archivo_cli_mod.beg);
 							archivo_cli_mod.write(reinterpret_cast<char*>(&client_toprint),sizeof(client_toprint));
 							archivo_cli_mod.close();
+							//archivo_clientes.close();
 						}
+						
 					};//end case delete 
 					break;
 					case 4:{
@@ -260,28 +311,31 @@ int main (int argc, char* argv[]){
 							ifstream archivo_clientes("clients.bin", ifstream::binary);
 							Header client_head;
 							archivo_clientes.read(reinterpret_cast<char*>(&client_head),sizeof(client_head));
-							//cout<<"SIZE-->"<<client_head.size<<endl;
 							archivo_clientes.seekg(((pos-1)*client_head.size)+8, archivo_clientes.beg);
-							//cout<<"SIZE-->"<<archivo_clientes.tellg()<<endl;
 							Clients client_toprint;
 							archivo_clientes.read(reinterpret_cast<char*>(&client_toprint),sizeof(client_toprint));
-							//cout<<client_toprint.posicion<<endl;
 							archivo_clientes.close();
-							ofstream archivo_cli_mod("clients.bin",ofstream::binary);
+							fstream archivo_cli_mod("clients.bin",fstream::binary|ios::out|ios::in);
 							cout<<"ID: "<<client_toprint.ID<<endl;
 							cout<<"Name: "<<client_toprint.name<<endl;
 							cout<<"Gender: "<<client_toprint.gender<<endl;
 							cout<<"CityID: "<<client_toprint.cityID<<endl;
-							char[40] client_newname;
+							char client_newname[40];
 							cout<<"New Name >>";
 							cin>>client_newname;
 							cout<<endl;
 							char client_newgender;
 							cout<<"New Gender >>";
 							cin>>client_newgender;
+							Clients toadd;
+							strcpy(toadd.ID,client_toprint.ID);
+							strcpy(toadd.name,client_newname);
+							toadd.gender = client_newgender;
+							strcpy(toadd.cityID,client_toprint.cityID);
 							//archivo_cli_mod.write(reinterpret_cast<char*>(&client_head),sizeof(client_head));
 							archivo_cli_mod.seekp(((pos-1)*client_head.size)+8, archivo_cli_mod.beg);
-							archivo_cli_mod.write(reinterpret_cast<char*>(&client_toprint),sizeof(client_toprint));
+							//cout<<archivo_cli_mod.tellp()<<endl;
+							archivo_cli_mod.write(reinterpret_cast<char*>(&toadd),sizeof(toadd));
 							archivo_cli_mod.close();
 						}
 					};
@@ -385,8 +439,8 @@ int menu(){
 	cout<<"MENU: "<<endl;
 	cout<<"1. Create"<<endl;
 	cout<<"2. Read"<<endl;
-	cout<<"3. Update"<<endl;
-	cout<<"4. Delete"<<endl;
+	cout<<"3. Delete"<<endl;
+	cout<<"4. Update"<<endl;
 	do{
 		cout<<"Write your option: ";
 		cin>>options;
