@@ -169,7 +169,7 @@ int main(int argc, char* argv[]){
 		ofstream indice_clients("Ind_Clients.bin",ofstream::binary);
 		ofstream clientesfile("clients.bin", ofstream::binary);
 		Header head_client;
-		head_client.size = 68;
+		head_client.size = sizeof(Clients);
 		head_client.avail = -1;
 		clientesfile.write(reinterpret_cast<const char*>(&head_client), sizeof(head_client));
 		vector<Indice> ind_temp;
@@ -219,7 +219,7 @@ int main(int argc, char* argv[]){
 	ofstream indice_city("indice_city.bin", ofstream::binary);
 	vector<Indice_City> llaves_city;
 	Header head_city;
-	head_city.size = 53;
+	head_city.size = sizeof(Cities);
 	head_city.avail = -1;
 	citiesfile.write(reinterpret_cast<const char*>(&head_city), sizeof(head_city));
 	for (int i = 0; i < 30; i++){
@@ -255,7 +255,7 @@ int main(int argc, char* argv[]){
 		ofstream indice_line("Ind_lines.bin", ofstream::binary);	
 		//cout<<"1"<<endl;
 		Header head_line;
-		head_line.size = 34;
+		head_line.size = sizeof(Lines);
 		head_line.avail = -1;
 		lineasfile.write(reinterpret_cast<const char*>(&head_line), sizeof(head_line));
 		for (int j = 0; j < 500; j++){
@@ -291,7 +291,7 @@ int main(int argc, char* argv[]){
 	//if(file_calls1.fail()){	
 	ofstream file_calls("calls.bin",ofstream::binary);
 	//cout<<lines.size()<<endl;
-	for (int i = 0; i < 500; i++){
+	for (int i = 0; i < 7000; i++){
 		calls.push_back(llamadas(lines));
 	}
 	Ordenar(calls);
