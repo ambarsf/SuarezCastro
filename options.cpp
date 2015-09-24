@@ -50,11 +50,109 @@ struct Indice_City{
 	char Llave[5];
 };
 
+struct Node{
+	Indice* keys;
+	Node** child;
+	int minimum;
+	int numKeys;
+	bool isleaf;
+
+	void NotFull(Indice);
+	void Split(int num, Node* node);
+	int searchKey(Indice index);
+
+	Node(int min, bool leaf){
+		minimum=min;
+		isleaf=leaf;
+		keys=new Indice[2*minimum-1];
+		child= new Node* [2*minimum];
+		numKeys=0;
+	}
+	friend struct Tree;
+};
+
+struct Tree{
+	Node* root;
+	int minimum;
+
+	Tree(int min){
+		root=NULL;
+		minimum=min;
+	}
+	void insert(Indice);
+};
+
+void Tree::insert(Indice index){
+	if (root==NULL){
+		root=new Node(minimum,true);
+		root->keys[0]=index;
+		root->numKeys=1;
+	}else{
+		if (root->numKeys==2*minimum-1){
+			Node* nodo = new Node(minimum,false);
+			nodo->child[0]=root;
+			nodo->Split(0,root);
+			int num=0;
+			if (nodo->keys[0].Llave<index.Llave){
+				num++;
+			}//end if
+			nodo->child[num]->NotFull(index);
+			root=nodo;
+		}else{
+			root->NotFull(index);
+		}//end if
+	}//end if
+}//end insert
+
+void Node::Split(int num, Node* node){
+	Node* nodo = new Node(node->minimum, node->isleaf);
+	nodo->numKeys=minimum-1;
+	for (int i = 0; i < minimum-1; i++){
+		nodo->keys[i]=node->keys[i+minimum];
+	}
+	if(node->isleaf==false){
+		for (int i = 0; i < minimum; i++){
+			nodo->child[i]=node->child[i+minimum];
+		}
+	}
+	node->numKeys=minimum-1;
+	for (int i = numKeys; i >= num; i--){
+		keys[i+1]=keys[i];
+	}
+	keys[num]=node->keys[minimum-1];
+	numKeys++;
+}
+
+void Node::NotFull(Indice index){
+	int num=numKeys-1;
+	if (isleaf==true){
+		while(num>=0 && keys[num].Llave>index.Llave){
+			keys[num+1]=keys[num];
+			num--;
+		}
+		keys[num+1]=index;
+		numKeys++;
+	}else{
+		while(num>=0 && keys[num].Llave>index.Llave){
+			num--;
+		}
+		if(child[num+1]->numKeys==(2*minimum-1)){
+			Split(num+1, child[num+1]);
+			if(keys[num+1].Llave<index.Llave){
+				num++;
+			}
+		}
+		child[num+1]->NotFull(index);
+	}
+}
+
 int binary_insertion( vector<long>, long);
 int binary_search(vector<long>, long);
 int binary_search_int(vector<int>, int);
 
-int main (int argc, char* argv[]){	
+int main (int argc, char* argv[]){
+	Tree TreePerson(3);
+	Tree TreeLines(3);	
 	srand(time(0));
 	int cont_ID;
 	int opcion;
@@ -118,6 +216,7 @@ int main (int argc, char* argv[]){
 						int insert_pos = binary_insertion(Indices_cl,Id_toadd);
 						Indices_cl.insert(Indices_cl.begin() + insert_pos, Id_toadd);
 						Indice a_agregar;
+						TreePerson.insert(a_agregar);
 						strcpy(a_agregar.Llave,append_client.ID);
 						a_agregar.RRN = cont_ID;
 						Ind_cl_toadd.insert(Ind_cl_toadd.begin() + insert_pos, a_agregar);
@@ -401,6 +500,7 @@ int main (int argc, char* argv[]){
 							int insert_pos = binary_insertion(Indices_lin,Id_toadd);
 							Indices_lin.insert(Indices_lin.begin() + insert_pos, Id_toadd);
 							Indice a_agregar;
+							TreeLines.insert(a_agregar);
 							strcpy(a_agregar.Llave,append_line.ID);
 							a_agregar.RRN = cont_ID_line+1;
 							Ind_lin_toadd.insert(Ind_lin_toadd.begin() + insert_pos, a_agregar);
