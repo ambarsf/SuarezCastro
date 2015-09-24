@@ -58,11 +58,8 @@ int main (int argc, char* argv[]){
 	srand(time(0));
 	int cont_ID;
 	int opcion;
-	ifstream filetmp("clients.bin",ifstream::binary);
-	filetmp.seekg(0,filetmp.end);
-	cont_ID = filetmp.tellg();
-	cont_ID = ((cont_ID-8)/68);
-	filetmp.close();
+	int contador_lines = 0;
+	ifstream fileId_r ("rpn.txt", ifstream::binary);
 	do{
 		opcion = opciones();
 		switch(opcion){
@@ -71,6 +68,11 @@ int main (int argc, char* argv[]){
 				switch (option){
 					case 1:{
 						//cout<<"CONT_ID--->"<<cont_ID<<endl;
+						ifstream filetmp("clients.bin",ifstream::binary);
+						filetmp.seekg(0,filetmp.end);
+						cont_ID = filetmp.tellg();
+						cont_ID = ((cont_ID-8)/68);
+						filetmp.close();
 						ofstream file_cli_create("clients.bin",ios::app|ofstream::binary);
 						Clients append_client;
 						char tempid[14];
@@ -78,7 +80,7 @@ int main (int argc, char* argv[]){
 						fileId.seekg((14*cont_ID),ios::beg);
 						fileId.getline(tempid,sizeof(tempid));
 						fileId.close();
-						cont_ID++;
+						//cont_ID++;
 						strcpy(append_client.ID,tempid);
 						cout<<endl;
 						cout<<"Name >>";
@@ -348,22 +350,33 @@ int main (int argc, char* argv[]){
 						ifstream filetmp_cli("clients.bin",ifstream::binary);
 						filetmp_cli.seekg(0,filetmp_cli.end);
 						cont_cli = filetmp_cli.tellg();
-						cont_cli = ((cont_cli-8)/68)+1;	
+						cont_cli = ((cont_cli-8)/sizeof(Clients))+1;	
 						filetmp_cli.close();
 						if(cont_ID_line < cont_cli){						
 							ofstream file_line_create("lines.bin",ios::app|ofstream::binary);
 							Lines append_line;
-							char tempid[11];
-							ifstream fileId ("Id.txt");
-							fileId.seekg((14*cont_ID_line),ios::beg);
-							fileId.getline(tempid,sizeof(tempid));
+							char tempid[14];
+							ifstream fileId ("Ind_Clients.bin",ifstream::binary);
+							cout<<cont_ID_line<<">>>"<<endl;
+							vector<Indice> vec_ID_cl;
+							Indice i_cl_tmp;
+							while(fileId.read(reinterpret_cast<char*>(&i_cl_tmp),sizeof(i_cl_tmp))){
+								vec_ID_cl.push_back(i_cl_tmp);
+							}
+							//fileId.seekg((14*cont_ID_line),ios::beg);
+							//fileId.getline(tempid,sizeof(tempid));
+							int max = vec_ID_cl.size();
+							cout<<"MAX--->"<<max<<endl;
+							int random = rand() % max + 0;
+							strcpy(tempid,vec_ID_cl.at(random).Llave);
 							fileId.close();
 							char tmpnum[11];
-							ifstream fileId_r ("RandomPhoneNumbers.txt");
-							fileId_r.seekg((8*cont_ID_line),ios::beg);
+							//fileId_r.seekg(8*cont_ID_line,ios::end);
+							//contador_lines++;
+							contador_lines = fileId_r.tellg();
+							fileId_r.seekg(contador_lines,fileId_r.beg);
 							fileId_r.getline(tmpnum,sizeof(tmpnum));
-							fileId_r.close();
-							cont_ID_line++;
+							
 							strcpy(append_line.ID,tempid);
 							cout<<endl;
 							strcpy(append_line.number,tmpnum);
@@ -427,7 +440,7 @@ int main (int argc, char* argv[]){
 							while(file_lin.read(reinterpret_cast<char*>(&line), sizeof(line))){
 								if(line.available != true){
 								cout<<"Client ID: "<<line.ID<<endl;
-								cout<<"Name: "<<line.number<<endl;
+								cout<<"Number: "<<line.number<<endl;
 								}
 								//cont++;
 							}//fin while
@@ -435,9 +448,6 @@ int main (int argc, char* argv[]){
 							file_lin.close();
 						}else{
 							char id_toseek[11];
-							cout<<"Lines"<<sizeof(Lines)<<endl;
-							cout<<"Clients"<<sizeof(Clients)<<endl;
-							cout<<"Cities"<<sizeof(Cities)<<endl;
 							cout<<"Number to seek >>";
 							cin>>id_toseek;
 							ifstream llaves_lin("Ind_lines.bin",ifstream::binary);
@@ -472,10 +482,11 @@ int main (int argc, char* argv[]){
 								Indice i_cl;
 								while(ind_cl.read(reinterpret_cast<char*>(&i_cl),sizeof(i_cl))){
 									Llave_cl.push_back(atol(i_cl.Llave));
+									//cout<<atol(i_cl.Llave)<<endl;
 									All_keyscl.push_back(i_cl);
 								}
 								ind_cl.close();
-								cout<<line_toprint.ID<<"<<<ID<<"<<endl;;
+								//cout<<line_toprint.ID<<"<<<ID<<"<<endl;;
 								int seek = binary_search(Llave_cl,atol(line_toprint.ID));
 								//cout<<seek<<"<<<<<"<<endl;
 								int toseek = All_keyscl.at(seek).RRN;
@@ -485,7 +496,7 @@ int main (int argc, char* argv[]){
 								Clients cl_1;
 								//cout<<"----><--->>"<<cl_1.ID<<endl;
 								client_seek.read(reinterpret_cast<char*>(&cl_1),sizeof(cl_1));
-								if(line_toprint.available == true){
+								if(line_toprint.available != true){
 									cout<<"ID: "<<cl_1.ID<<endl;
 									cout<<"Number: "<<line_toprint.number<<endl;
 									cout<<"Name: "<<cl_1.name<<endl;
@@ -828,6 +839,7 @@ int main (int argc, char* argv[]){
 			break;
 		};
 	}while(opcion < 4);
+	fileId_r.close();
 	return 0;
 }// end main
 
@@ -889,13 +901,17 @@ int binary_search(vector<long> list, long element){
 	while(min<=max){
 		int half = (max+min)/2;
 		if(list.at(half) == element){
-			//cout<<list.at(half)<<endl;
 			return half;
 		}
-		if(list.at(half) < element){
+		else if(list.at(half) < element){
 			min = half + 1;
 		}else{
 			max = half - 1;
+		}	
+	}
+	for (int i = 0; i < list.size(); i++){
+		if(list.at(i) == element){
+			return i;
 		}
 	}
 	return -1;
@@ -910,10 +926,15 @@ int binary_search_int(vector<int> list, int element){
 			//cout<<list.at(half)<<endl;
 			return half;
 		}
-		if(list.at(half) < element){
-			min = half - 1;
+		else if(list.at(half) < element){
+			min = half + 1;
 		}else{
-			max = half + 1;
+			max = half - 1;
+		}
+	}
+	for (int i = 0; i < list.size(); i++){
+		if(list.at(i) == element){
+			return i;
 		}
 	}
 	return -1;
